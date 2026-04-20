@@ -158,9 +158,9 @@ export function ReviewFlow({ course, initialEmail }: Props) {
               inputMode="numeric"
               autoComplete="one-time-code"
               pattern="[0-9]*"
-              maxLength={6}
+              maxLength={8}
               required
-              placeholder="123456"
+              placeholder="12345678"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               disabled={pending}

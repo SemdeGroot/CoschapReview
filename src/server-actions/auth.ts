@@ -15,7 +15,7 @@ const emailSchema = z
 
 const verifySchema = z.object({
   email: emailSchema,
-  code: z.string().regex(/^\d{6}$/, "Vul de 6-cijferige code in."),
+  code: z.string().regex(/^\d{8}$/, "Vul de 8-cijferige code in."),
 });
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
