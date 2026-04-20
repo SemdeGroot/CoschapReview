@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
-import { Pencil } from "lucide-react";
+import { useState, useTransition } from "react";
+import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -22,54 +22,45 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { updateCourseAction } from "@/server-actions/admin";
+import { createCourseAction } from "@/server-actions/admin";
 
 type Spec = { id: number; code: string; name: string };
 
-type CourseData = {
-  id: string;
-  slug: string;
-  title: string;
-  location: string;
-  description: string;
-  studiegids_url: string;
-  color: string;
-  type_id: number | null;
-};
-
 type Props = {
-  course: CourseData;
   allSpecs: Spec[];
 };
 
-export function CourseEditModal({ course, allSpecs }: Props) {
+export function CourseAddModal({ allSpecs }: Props) {
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
-  const [slug, setSlug] = useState(course.slug);
-  const [title, setTitle] = useState(course.title);
-  const [location, setLocation] = useState(course.location);
-  const [description, setDescription] = useState(course.description);
-  const [studiegidsUrl, setStudiegidsUrl] = useState(course.studiegids_url);
-  const [color, setColor] = useState(course.color);
-  const [typeId, setTypeId] = useState<number>(course.type_id ?? allSpecs[0]?.id ?? 0);
+  const [slug, setSlug] = useState("");
+  const [title, setTitle] = useState("");
+  const [location, setLocation] = useState("");
+  const [description, setDescription] = useState("");
+  const [studiegidsUrl, setStudiegidsUrl] = useState("");
+  const [color, setColor] = useState("#001158");
+  const [typeId, setTypeId] = useState<number>(allSpecs[0]?.id ?? 0);
 
-  useEffect(() => {
-    if (!open) return;
-    setSlug(course.slug);
-    setTitle(course.title);
-    setLocation(course.location);
-    setDescription(course.description);
-    setStudiegidsUrl(course.studiegids_url);
-    setColor(course.color);
-    setTypeId(course.type_id ?? allSpecs[0]?.id ?? 0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open]);
+  function resetForm() {
+    setSlug("");
+    setTitle("");
+    setLocation("");
+    setDescription("");
+    setStudiegidsUrl("");
+    setColor("#001158");
+    setTypeId(allSpecs[0]?.id ?? 0);
+  }
+
+  function handleOpenChange(value: boolean) {
+    setOpen(value);
+    if (!value) resetForm();
+  }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     startTransition(async () => {
-      const res = await updateCourseAction(course.id, {
+      const res = await createCourseAction({
         slug,
         title,
         location,
@@ -82,28 +73,27 @@ export function CourseEditModal({ course, allSpecs }: Props) {
         toast.error(res.error);
         return;
       }
-      toast.success("Apotheek bijgewerkt.");
+      toast.success("Apotheek toegevoegd.");
       setOpen(false);
     });
   }
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Pencil size={14} />
-          <span className="sr-only sm:not-sr-only">Bewerken</span>
+        <Button className="bg-accent text-accent-foreground hover:bg-accent/90">
+          <Plus size={14} /> Apotheek toevoegen
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Apotheek bewerken</DialogTitle>
+          <DialogTitle>Apotheek toevoegen</DialogTitle>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="edit-slug">Code (URL)</Label>
+            <Label htmlFor="add-slug">Code (URL)</Label>
             <Input
-              id="edit-slug"
+              id="add-slug"
               required
               minLength={2}
               maxLength={80}
@@ -113,12 +103,15 @@ export function CourseEditModal({ course, allSpecs }: Props) {
               onChange={(e) => setSlug(e.target.value)}
               disabled={pending}
             />
+            <p className="text-xs text-muted-foreground">
+              Alleen kleine letters, cijfers en koppeltekens. Wordt gebruikt in de URL.
+            </p>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-title">Naam</Label>
+            <Label htmlFor="add-title">Naam</Label>
             <Input
-              id="edit-title"
+              id="add-title"
               required
               minLength={2}
               maxLength={120}
@@ -129,9 +122,9 @@ export function CourseEditModal({ course, allSpecs }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-location">Locatie</Label>
+            <Label htmlFor="add-location">Locatie</Label>
             <Input
-              id="edit-location"
+              id="add-location"
               required
               maxLength={200}
               value={location}
@@ -141,9 +134,9 @@ export function CourseEditModal({ course, allSpecs }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-description">Beschrijving</Label>
+            <Label htmlFor="add-description">Beschrijving</Label>
             <textarea
-              id="edit-description"
+              id="add-description"
               required
               maxLength={2000}
               rows={4}
@@ -155,11 +148,12 @@ export function CourseEditModal({ course, allSpecs }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-url">Apotheek website</Label>
+            <Label htmlFor="add-url">Apotheek website</Label>
             <Input
-              id="edit-url"
+              id="add-url"
               type="url"
               required
+              placeholder="https://..."
               value={studiegidsUrl}
               onChange={(e) => setStudiegidsUrl(e.target.value)}
               disabled={pending}
@@ -167,13 +161,13 @@ export function CourseEditModal({ course, allSpecs }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-type">Type apotheek</Label>
+            <Label htmlFor="add-type">Type apotheek</Label>
             <Select
               value={String(typeId)}
               onValueChange={(v) => setTypeId(Number(v))}
               disabled={pending}
             >
-              <SelectTrigger id="edit-type" className="w-full">
+              <SelectTrigger id="add-type" className="w-full">
                 <SelectValue placeholder="Selecteer type" />
               </SelectTrigger>
               <SelectContent>
@@ -187,10 +181,10 @@ export function CourseEditModal({ course, allSpecs }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="edit-color">Kleur</Label>
+            <Label htmlFor="add-color">Kleur</Label>
             <div className="flex items-center gap-3">
               <input
-                id="edit-color"
+                id="add-color"
                 type="color"
                 value={color}
                 onChange={(e) => setColor(e.target.value)}
@@ -215,7 +209,7 @@ export function CourseEditModal({ course, allSpecs }: Props) {
               disabled={pending}
               className="bg-accent text-accent-foreground hover:bg-accent/90"
             >
-              {pending ? "Opslaan..." : "Opslaan"}
+              {pending ? "Toevoegen..." : "Toevoegen"}
             </Button>
           </DialogFooter>
         </form>

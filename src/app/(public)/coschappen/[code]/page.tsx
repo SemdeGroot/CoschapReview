@@ -4,12 +4,10 @@ import { ArrowLeft, ExternalLink, Pencil } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Icon } from "@/lib/icons/Icon";
+import { getIconKeyByTypeCode } from "@/lib/icons/registry";
 import { type ReviewCardData } from "@/components/review-card";
 import { ReviewListSection } from "@/components/review-list-section";
-import {
-  SpecializationBadge,
-  type SpecializationPill,
-} from "@/components/specialization-badge";
+import { SpecializationBadge } from "@/components/specialization-badge";
 import { StatPill } from "@/components/stat-pill";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -38,7 +36,7 @@ export default async function CourseDetailPage({
   const detail = await fetchCourseDetail(code);
   if (!detail) notFound();
 
-  const { course, specializations } = detail;
+  const { course } = detail;
   const reviews = await fetchReviews(course.id);
 
   return (
@@ -63,7 +61,7 @@ export default async function CourseDetailPage({
               style={{ backgroundColor: course.color }}
               aria-hidden
             >
-              <Icon name={course.icon} size={28} className="text-white" />
+              <Icon name={getIconKeyByTypeCode(course.type_code)} size={28} className="text-white" />
             </span>
             <div className="min-w-0 flex-1">
               <h1 className="mt-1 text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
@@ -71,14 +69,12 @@ export default async function CourseDetailPage({
               </h1>
               <p className="mt-2 text-sm text-muted-foreground">{course.location}</p>
               <div className="mt-3 flex flex-wrap gap-1.5">
-                {specializations.map((s) => (
+                {course.type_code && course.type_name && (
                   <SpecializationBadge
-                    key={s.code}
-                    code={s.code}
-                    name={s.name}
-                    role={s.role}
+                    code={course.type_code}
+                    name={course.type_name}
                   />
-                ))}
+                )}
               </div>
             </div>
             <Button
@@ -145,34 +141,6 @@ async function fetchCourseDetail(code: string) {
 
   if (!course?.id) return null;
 
-  const [{ data: mapping }, { data: specs }] = await Promise.all([
-    supabase
-      .from("course_specializations")
-      .select("role, specialization_id")
-      .eq("course_id", course.id),
-    supabase.from("specializations").select("id, code, name"),
-  ]);
-
-  const specLookup = new Map<number, { code: string; name: string }>();
-  for (const s of specs ?? []) {
-    specLookup.set(s.id, { code: s.code, name: s.name });
-  }
-
-  const specializations: SpecializationPill[] = [];
-  for (const row of mapping ?? []) {
-    const spec = specLookup.get(row.specialization_id);
-    if (!spec) continue;
-    specializations.push({
-      code: spec.code,
-      name: spec.name,
-      role: row.role as "core" | "elective",
-    });
-  }
-  specializations.sort((a, b) => {
-    if (a.role !== b.role) return a.role === "core" ? -1 : 1;
-    return a.code.localeCompare(b.code);
-  });
-
   return {
     course: {
       id: course.id,
@@ -182,11 +150,11 @@ async function fetchCourseDetail(code: string) {
       description: course.description ?? "",
       studiegids_url: course.studiegids_url ?? "#",
       color: course.color ?? "#001158",
-      icon: course.icon ?? "hospital",
+      type_code: course.type_code ?? null,
+      type_name: course.type_name ?? null,
       avg_rating: Number(course.avg_rating ?? 0),
       review_count: Number(course.review_count ?? 0),
     },
-    specializations,
   };
 }
 

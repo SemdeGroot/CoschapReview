@@ -101,7 +101,7 @@ export function AdminManager({ admins, isSuperuser }: Props) {
         <form onSubmit={handleAdd} className="flex gap-2">
           <Input
             type="email"
-            placeholder="nieuw@umail.leidenuniv.nl"
+            placeholder="naam@umail.leidenuniv.nl / students.uu.nl / student.rug.nl"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={pending}

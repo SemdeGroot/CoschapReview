@@ -26,7 +26,7 @@ export const metadata: Metadata = {
     template: "%s | Farmacoschap",
   },
   description:
-    "Farmacoschap helpt MSc-farmaciestudenten in Nederland met eerlijke reviews van ziekenhuis-, poliklinische en openbare apotheekcoschappen.",
+    "Farmacoschap. Platform voor ervaringen over coschappen in de apotheek.",
   keywords: [
     "farmacoschap",
     "farmacie coschap",
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Farmacoschap",
     description:
-      "Eerlijke reviews van farmaciecoschappen voor MSc-studenten in Nederland.",
+      "Beoordelingen van coschappen in de apotheek voor MSc-studenten in Nederland.",
     siteName: "Farmacoschap",
     locale: "nl_NL",
     type: "website",

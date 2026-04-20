@@ -49,84 +49,49 @@ export type Database = {
         }
         Relationships: []
       }
-      course_specializations: {
-        Row: {
-          course_id: string
-          role: string
-          specialization_id: number
-        }
-        Insert: {
-          course_id: string
-          role: string
-          specialization_id: number
-        }
-        Update: {
-          course_id?: string
-          role?: string
-          specialization_id?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "course_specializations_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "course_specializations_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses_with_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "course_specializations_specialization_id_fkey"
-            columns: ["specialization_id"]
-            isOneToOne: false
-            referencedRelation: "specializations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       courses: {
         Row: {
           slug: string
           color: string
           created_at: string
           description: string
-          ec: number
-          icon: string
           id: string
           location: string
           studiegids_url: string
           title: string
+          type_id: number | null
         }
         Insert: {
           slug: string
           color?: string
           created_at?: string
           description: string
-          ec?: number
-          icon?: string
           id?: string
           location: string
           studiegids_url: string
           title: string
+          type_id?: number | null
         }
         Update: {
           slug?: string
           color?: string
           created_at?: string
           description?: string
-          ec?: number
-          icon?: string
           id?: string
           location?: string
           studiegids_url?: string
           title?: string
+          type_id?: number | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "courses_type_id_fkey"
+            columns: ["type_id"]
+            isOneToOne: false
+            referencedRelation: "specializations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       reviews: {
         Row: {
@@ -202,14 +167,15 @@ export type Database = {
           color: string | null
           created_at: string | null
           description: string | null
-          ec: number | null
-          icon: string | null
           id: string | null
           location: string | null
           review_count: number | null
           slug: string | null
           studiegids_url: string | null
           title: string | null
+          type_id: number | null
+          type_code: string | null
+          type_name: string | null
         }
         Relationships: []
       }

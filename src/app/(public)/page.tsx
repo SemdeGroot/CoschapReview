@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { type CourseListItem } from "@/components/course-list";
 import { CourseBrowser } from "@/components/course-browser";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { SpecializationPill } from "@/components/specialization-badge";
+import { getIconKeyByTypeCode } from "@/lib/icons/registry";
 
 export default async function LandingPage() {
   const courses = await fetchCourses();
@@ -58,58 +58,29 @@ export default async function LandingPage() {
 
 async function fetchCourses(): Promise<CourseListItem[]> {
   const supabase = await createSupabaseServerClient();
-  const query = supabase
+  const { data: coursesData, error: coursesError } = await supabase
     .from("courses_with_stats")
     .select("*")
     .order("review_count", { ascending: false });
 
-  const { data: coursesData, error: coursesError } = await query;
   if (coursesError) {
     console.error("Failed to load courses", coursesError);
     return [];
   }
-  const courses = (coursesData ?? []).filter((c) => c.id && c.slug && c.title);
-  if (courses.length === 0) return [];
 
-  const courseIds = courses.map((c) => c.id!) ;
-
-  const [{ data: mappingData }, { data: specsData }] = await Promise.all([
-    supabase
-      .from("course_specializations")
-      .select("course_id, role, specialization_id")
-      .in("course_id", courseIds),
-    supabase.from("specializations").select("id, code, name"),
-  ]);
-
-  const specLookup = new Map<number, { code: string; name: string }>();
-  for (const s of specsData ?? []) {
-    specLookup.set(s.id, { code: s.code, name: s.name });
-  }
-
-  const specsByCourse = new Map<string, SpecializationPill[]>();
-  for (const m of mappingData ?? []) {
-    const spec = specLookup.get(m.specialization_id);
-    if (!spec) continue;
-    const list = specsByCourse.get(m.course_id) ?? [];
-    list.push({ code: spec.code, name: spec.name, role: m.role as "core" | "elective" });
-    specsByCourse.set(m.course_id, list);
-  }
-  for (const list of specsByCourse.values()) {
-    list.sort((a, b) => {
-      if (a.role !== b.role) return a.role === "core" ? -1 : 1;
-      return a.code.localeCompare(b.code);
-    });
-  }
-
-  return courses.map((c) => ({
-    id: c.id!,
-    slug: c.slug!,
-    title: c.title!,
-    location: c.location ?? "",
-    color: c.color ?? "#001158",
-    icon: c.icon ?? "hospital",
-    avg_rating: Number(c.avg_rating ?? 0),
-    review_count: Number(c.review_count ?? 0),
-    specializations: specsByCourse.get(c.id!) ?? [],
-  }));
+  return (coursesData ?? [])
+    .filter((c) => c.id && c.slug && c.title)
+    .map((c) => ({
+      id: c.id!,
+      slug: c.slug!,
+      title: c.title!,
+      location: c.location ?? "",
+      color: c.color ?? "#001158",
+      icon: getIconKeyByTypeCode(c.type_code),
+      avg_rating: Number(c.avg_rating ?? 0),
+      review_count: Number(c.review_count ?? 0),
+      specializations: c.type_code && c.type_name
+        ? [{ code: c.type_code, name: c.type_name }]
+        : [],
+    }));
 }

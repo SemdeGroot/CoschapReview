@@ -22,3 +22,7 @@ export function getIconMeta(key: string | null | undefined): IconMeta {
   if (!key) return iconByKey[DEFAULT_ICON_KEY];
   return iconByKey[key] ?? iconByKey[DEFAULT_ICON_KEY];
 }
+
+export function getIconKeyByTypeCode(code: string | null | undefined): string {
+  return code === "openbare" ? "public" : "hospital";
+}

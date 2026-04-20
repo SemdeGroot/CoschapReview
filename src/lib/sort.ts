@@ -12,6 +12,8 @@ export const COURSE_SORT_OPTIONS: SortOption[] = [
   { value: "reviews.asc", label: "Minst besproken", column: "review_count", ascending: true },
   { value: "title.asc", label: "Naam A-Z", column: "title", ascending: true },
   { value: "title.desc", label: "Naam Z-A", column: "title", ascending: false },
+  { value: "location.asc", label: "Plaats A-Z", column: "location", ascending: true },
+  { value: "location.desc", label: "Plaats Z-A", column: "location", ascending: false },
 ];
 
 export const DEFAULT_COURSE_SORT = "rating.desc";

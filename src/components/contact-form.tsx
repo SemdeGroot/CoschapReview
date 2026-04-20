@@ -63,7 +63,7 @@ export function ContactForm() {
             id="contact-name"
             name="name"
             required
-            placeholder="Je naam"
+            placeholder="Jan de Vries"
             value={name}
             onChange={(e) => setName(e.target.value)}
             disabled={pending}
@@ -76,7 +76,7 @@ export function ContactForm() {
             name="email"
             type="email"
             required
-            placeholder="je@email.nl"
+            placeholder="voorbeeld@gmail.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             disabled={pending}

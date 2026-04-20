@@ -151,62 +151,78 @@ export async function removeAdminAction(email: string): Promise<ActionResult> {
   return { ok: true };
 }
 
-const updateCourseSchema = z.object({
+const courseSchema = z.object({
+  slug: z
+    .string()
+    .trim()
+    .min(2, "Code is te kort.")
+    .max(80, "Code is te lang.")
+    .regex(/^[a-z0-9-]+$/, "Gebruik alleen kleine letters, cijfers en koppeltekens."),
   title: z.string().trim().min(2, "Titel is te kort.").max(120, "Titel is te lang."),
   location: z.string().trim().min(1, "Locatie is verplicht.").max(200),
   description: z.string().trim().min(1, "Beschrijving is verplicht.").max(2000),
   studiegids_url: z.string().trim().url("Ongeldige URL."),
   color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Ongeldige kleurcode."),
-  icon: z.string().min(1),
-  ec: z.coerce.number().int().min(1).max(30),
-  specializations: z.array(
-    z.object({
-      specialization_id: z.number().int(),
-      role: z.enum(["core", "elective"]),
-    }),
-  ),
+  type_id: z.number().int().min(1, "Selecteer een type apotheek."),
 });
 
-export type UpdateCourseInput = z.infer<typeof updateCourseSchema>;
+export type CourseInput = z.infer<typeof courseSchema>;
+
+export async function createCourseAction(data: CourseInput): Promise<ActionResult> {
+  const admin = await currentAdmin();
+  if (!admin) return { ok: false, error: "Geen toegang." };
+
+  const parsed = courseSchema.safeParse(data);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Ongeldige invoer." };
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("courses").insert({
+    slug: parsed.data.slug,
+    title: parsed.data.title,
+    location: parsed.data.location,
+    description: parsed.data.description,
+    studiegids_url: parsed.data.studiegids_url,
+    color: parsed.data.color,
+    type_id: parsed.data.type_id,
+  });
+  if (error) {
+    if (error.code === "23505") return { ok: false, error: "Deze code is al in gebruik." };
+    return { ok: false, error: error.message };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/coschappen");
+  return { ok: true };
+}
 
 export async function updateCourseAction(
   courseId: string,
-  data: UpdateCourseInput,
+  data: CourseInput,
 ): Promise<ActionResult> {
   const admin = await currentAdmin();
   if (!admin) return { ok: false, error: "Geen toegang." };
 
-  const parsed = updateCourseSchema.safeParse(data);
+  const parsed = courseSchema.safeParse(data);
   if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Ongeldige invoer." };
 
   const supabase = await createSupabaseServerClient();
-
   const { data: course, error: courseError } = await supabase
     .from("courses")
     .update({
+      slug: parsed.data.slug,
       title: parsed.data.title,
       location: parsed.data.location,
       description: parsed.data.description,
       studiegids_url: parsed.data.studiegids_url,
       color: parsed.data.color,
-      icon: parsed.data.icon,
-      ec: parsed.data.ec,
+      type_id: parsed.data.type_id,
     })
     .eq("id", courseId)
     .select("slug")
     .maybeSingle();
-  if (courseError) return { ok: false, error: courseError.message };
-
-  await supabase.from("course_specializations").delete().eq("course_id", courseId);
-  if (parsed.data.specializations.length > 0) {
-    const { error: specError } = await supabase.from("course_specializations").insert(
-      parsed.data.specializations.map((s) => ({
-        course_id: courseId,
-        specialization_id: s.specialization_id,
-        role: s.role,
-      })),
-    );
-    if (specError) return { ok: false, error: specError.message };
+  if (courseError) {
+    if (courseError.code === "23505") return { ok: false, error: "Deze code is al in gebruik." };
+    return { ok: false, error: courseError.message };
   }
 
   revalidatePath("/");

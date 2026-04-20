@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MessageSquare } from "lucide-react";
 
 import { Icon } from "@/lib/icons/Icon";
+import { getIconKeyByTypeCode } from "@/lib/icons/registry";
 import { Rating } from "@/components/rating";
 import {
   SpecializationBadge,
@@ -52,7 +53,7 @@ function DesktopTable({ courses, listKey }: Props & { listKey: number }) {
       <table className="w-full text-sm">
         <thead className="border-b border-border bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
           <tr>
-            <th className="px-4 py-3 text-left font-medium">Coschap</th>
+            <th className="px-4 py-3 text-left font-medium">Apotheek</th>
             <th className="px-3 py-3 text-left font-medium">Plaats</th>
             <th className="px-3 py-3 text-left font-medium">Beoordeling</th>
             <th className="px-3 py-3 text-right font-medium">Reviews</th>
@@ -93,7 +94,7 @@ function CourseRow({
             className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md text-white"
             style={{ backgroundColor: course.color }}
           >
-            <Icon name={course.icon} size={16} className="text-white" />
+            <Icon name={getIconKeyByTypeCode(course.specializations[0]?.code)} size={16} className="text-white" />
           </span>
           <span className="min-w-0">
             <span className="block truncate font-medium text-foreground group-hover:text-primary">
@@ -101,7 +102,7 @@ function CourseRow({
             </span>
             <span className="mt-1 flex flex-wrap gap-1">
               {course.specializations.slice(0, 5).map((s) => (
-                <SpecializationBadge key={s.code} code={s.code} name={s.name} role={s.role} />
+                <SpecializationBadge key={s.code} code={s.code} name={s.name} />
               ))}
             </span>
           </span>
@@ -141,7 +142,7 @@ function MobileCards({ courses, listKey }: Props & { listKey: number }) {
               className="mt-0.5 flex size-10 shrink-0 items-center justify-center rounded-md text-white"
               style={{ backgroundColor: course.color }}
             >
-              <Icon name={course.icon} size={20} className="text-white" />
+              <Icon name={getIconKeyByTypeCode(course.specializations[0]?.code)} size={20} className="text-white" />
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex items-start gap-2">
@@ -154,7 +155,7 @@ function MobileCards({ courses, listKey }: Props & { listKey: number }) {
               </div>
               <div className="mt-1.5 flex flex-wrap gap-1">
                 {course.specializations.slice(0, 4).map((s) => (
-                  <SpecializationBadge key={s.code} code={s.code} name={s.name} role={s.role} />
+                  <SpecializationBadge key={s.code} code={s.code} name={s.name} />
                 ))}
               </div>
             </div>

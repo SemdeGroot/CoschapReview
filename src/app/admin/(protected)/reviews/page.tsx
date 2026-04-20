@@ -1,19 +1,8 @@
-import Link from "next/link";
-import { ExternalLink, MessageSquare } from "lucide-react";
-
-import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
-import { Rating } from "@/components/rating";
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { deleteReviewAction } from "@/server-actions/admin";
+import { AdminReviewsList, type AdminReviewRow } from "@/components/admin-reviews-list";
 
 export const metadata = { title: "Admin · Beoordelingen" };
-
-const DATE_FMT = new Intl.DateTimeFormat("nl-NL", {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-});
 
 export default async function AdminReviewsPage() {
   const supabase = await createSupabaseServerClient();
@@ -39,7 +28,18 @@ export default async function AdminReviewsPage() {
     }
   }
 
-  const rows = reviews ?? [];
+  const rows: AdminReviewRow[] = (reviews ?? []).map((r) => ({
+    id: r.id,
+    title: r.title,
+    body: r.body,
+    rating: r.rating,
+    created_at: r.created_at,
+    author_id: r.author_id,
+    course_id: r.course_id,
+    authorEmail: emailByAuthor.get(r.author_id) ?? "unknown@",
+    courseSlug: r.courses?.slug ?? null,
+    courseTitle: r.courses?.title ?? null,
+  }));
 
   return (
     <div className="space-y-4">
@@ -52,79 +52,7 @@ export default async function AdminReviewsPage() {
         </p>
       </div>
 
-      {rows.length === 0 ? (
-        <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center">
-          <MessageSquare size={24} className="mx-auto text-muted-foreground" />
-          <h2 className="mt-2 text-base font-semibold text-foreground">
-            Nog geen reviews
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Nieuwe reviews verschijnen hier zodra studenten ze plaatsen.
-          </p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {rows.map((r) => {
-            const deleteReview = deleteReviewAction.bind(null, r.id);
-
-            return (
-            <article
-              key={r.id}
-              className="rounded-lg border border-border bg-card p-5"
-            >
-              <header className="flex flex-wrap items-start justify-between gap-2 border-b border-border pb-3">
-                <div className="min-w-0 flex-1">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h3 className="text-base font-semibold text-foreground">
-                      {r.title}
-                    </h3>
-                    {r.courses?.slug && (
-                      <Link
-                        href={`/coschappen/${r.courses.slug}`}
-                        target="_blank"
-                        className="inline-flex items-center gap-1 rounded-md border border-border px-1.5 py-0.5 font-mono text-xs text-muted-foreground hover:bg-secondary"
-                      >
-                        Bekijk coschap
-                        <ExternalLink size={10} />
-                      </Link>
-                    )}
-                  </div>
-                  <p className="mt-1 text-xs text-muted-foreground">
-                    <span className="font-mono">
-                      {emailByAuthor.get(r.author_id) ?? "unknown@"}
-                    </span>
-                    {" · "}
-                    {DATE_FMT.format(new Date(r.created_at))}
-                  </p>
-                </div>
-                <div className="flex items-start gap-3">
-                  <Rating value={r.rating} size="md" />
-                  <ConfirmDeleteButton
-                    title="Deze review verwijderen?"
-                    description="De review wordt definitief verwijderd. De reviewer kan daarna opnieuw een review plaatsen."
-                    action={deleteReview}
-                    successMessage="Review verwijderd."
-                  />
-                </div>
-              </header>
-              <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-foreground">
-                {r.body}
-              </p>
-              <dl className="mt-4 flex gap-5 border-t border-border pt-3 text-xs">
-                <div>
-                  <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                    Score
-                  </dt>
-                  <dd className="mt-0.5 font-medium tabular-nums">
-                    {r.rating.toFixed(1)} / 5
-                  </dd>
-                </div>
-              </dl>
-            </article>
-            );
-          })}
-        </div>
-      )}
+      <AdminReviewsList reviews={rows} />
     </div>
   );
 }
