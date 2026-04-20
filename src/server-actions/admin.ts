@@ -6,6 +6,7 @@ import { z } from "zod";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ALLOWED_EMAIL_DOMAIN_LABEL, isAllowedEmailDomain } from "@/lib/email-domains";
+import { isSuperuserEmail, SUPERUSER_EMAIL } from "@/lib/superuser";
 
 export type ActionResult<T = undefined> =
   | ({ ok: true } & (T extends undefined ? object : { data: T }))
@@ -114,5 +115,102 @@ export async function deleteReviewAction(
   revalidatePath("/");
   revalidatePath("/admin/reviews");
   if (review?.courses?.slug) revalidatePath(`/coschappen/${review.courses.slug}`);
+  return { ok: true };
+}
+
+export async function addAdminAction(email: string): Promise<ActionResult> {
+  const admin = await currentAdmin();
+  if (!admin || !isSuperuserEmail(admin.email)) return { ok: false, error: "Geen toegang." };
+
+  const parsed = z.string().trim().toLowerCase().email("Ongeldig e-mailadres.").safeParse(email);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Ongeldig e-mailadres." };
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("admins").insert({ email: parsed.data });
+  if (error) {
+    if (error.code === "23505") return { ok: false, error: "Dit e-mailadres is al een admin." };
+    return { ok: false, error: error.message };
+  }
+
+  revalidatePath("/admin/admins");
+  return { ok: true };
+}
+
+export async function removeAdminAction(email: string): Promise<ActionResult> {
+  const admin = await currentAdmin();
+  if (!admin || !isSuperuserEmail(admin.email)) return { ok: false, error: "Geen toegang." };
+  if (email.toLowerCase() === SUPERUSER_EMAIL.toLowerCase()) {
+    return { ok: false, error: "Het superuser-account kan niet verwijderd worden." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("admins").delete().eq("email", email);
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/admin/admins");
+  return { ok: true };
+}
+
+const updateCourseSchema = z.object({
+  title: z.string().trim().min(2, "Titel is te kort.").max(120, "Titel is te lang."),
+  location: z.string().trim().min(1, "Locatie is verplicht.").max(200),
+  description: z.string().trim().min(1, "Beschrijving is verplicht.").max(2000),
+  studiegids_url: z.string().trim().url("Ongeldige URL."),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Ongeldige kleurcode."),
+  icon: z.string().min(1),
+  ec: z.coerce.number().int().min(1).max(30),
+  specializations: z.array(
+    z.object({
+      specialization_id: z.number().int(),
+      role: z.enum(["core", "elective"]),
+    }),
+  ),
+});
+
+export type UpdateCourseInput = z.infer<typeof updateCourseSchema>;
+
+export async function updateCourseAction(
+  courseId: string,
+  data: UpdateCourseInput,
+): Promise<ActionResult> {
+  const admin = await currentAdmin();
+  if (!admin) return { ok: false, error: "Geen toegang." };
+
+  const parsed = updateCourseSchema.safeParse(data);
+  if (!parsed.success) return { ok: false, error: parsed.error.issues[0]?.message ?? "Ongeldige invoer." };
+
+  const supabase = await createSupabaseServerClient();
+
+  const { data: course, error: courseError } = await supabase
+    .from("courses")
+    .update({
+      title: parsed.data.title,
+      location: parsed.data.location,
+      description: parsed.data.description,
+      studiegids_url: parsed.data.studiegids_url,
+      color: parsed.data.color,
+      icon: parsed.data.icon,
+      ec: parsed.data.ec,
+    })
+    .eq("id", courseId)
+    .select("slug")
+    .maybeSingle();
+  if (courseError) return { ok: false, error: courseError.message };
+
+  await supabase.from("course_specializations").delete().eq("course_id", courseId);
+  if (parsed.data.specializations.length > 0) {
+    const { error: specError } = await supabase.from("course_specializations").insert(
+      parsed.data.specializations.map((s) => ({
+        course_id: courseId,
+        specialization_id: s.specialization_id,
+        role: s.role,
+      })),
+    );
+    if (specError) return { ok: false, error: specError.message };
+  }
+
+  revalidatePath("/");
+  revalidatePath("/admin/coschappen");
+  if (course?.slug) revalidatePath(`/coschappen/${course.slug}`);
   return { ok: true };
 }

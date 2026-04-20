@@ -18,7 +18,19 @@ type Props = {
 export function CourseBrowser({ courses }: Props) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState(DEFAULT_COURSE_SORT);
+  const [sortVersion, setSortVersion] = useState(0);
+
   const sortOption = resolveCourseSort(sort);
+
+  function handleSort(value: string) {
+    setSort(value);
+    setSortVersion((v) => v + 1);
+  }
+
+  function handleQuery(value: string) {
+    setQuery(value);
+    setSortVersion((v) => v + 1);
+  }
 
   const filteredCourses = courses.filter((course) => {
     const needle = query.trim().toLowerCase();
@@ -49,8 +61,8 @@ export function CourseBrowser({ courses }: Props) {
   return (
     <div className="space-y-3">
       <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
-        <SearchInput className="w-full sm:w-72" value={query} onChange={setQuery} />
-        <SortDropdown options={COURSE_SORT_OPTIONS} value={sort} onChange={setSort} />
+        <SearchInput className="w-full sm:max-w-md" value={query} onChange={handleQuery} />
+        <SortDropdown options={COURSE_SORT_OPTIONS} value={sort} onChange={handleSort} />
       </div>
       <div
         className={
@@ -59,7 +71,7 @@ export function CourseBrowser({ courses }: Props) {
             : undefined
         }
       >
-        <CourseList courses={sortedCourses} />
+        <CourseList courses={sortedCourses} listKey={sortVersion} />
       </div>
     </div>
   );

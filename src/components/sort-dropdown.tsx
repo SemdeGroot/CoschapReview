@@ -20,7 +20,7 @@ type Props = {
 export function SortDropdown({ options, value, onChange }: Props) {
   return (
     <Select value={value} onValueChange={onChange}>
-      <SelectTrigger className="w-[220px]">
+      <SelectTrigger className="w-full sm:w-[220px]">
         <ArrowUpDown size={14} className="text-muted-foreground" />
         <SelectValue />
       </SelectTrigger>

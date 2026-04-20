@@ -36,7 +36,7 @@ export function RatingInput({ value, onChange, max = 5, id }: Props) {
             onMouseEnter={() => setHover(n)}
             onClick={() => onChange(n)}
             className={cn(
-              "rounded-sm p-1 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              "rounded-sm p-2 transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring",
               "hover:bg-accent/10",
             )}
           >

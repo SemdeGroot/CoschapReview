@@ -3,6 +3,7 @@ import { ExternalLink, Plus } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
+import { CourseEditModal } from "@/components/course-edit-modal";
 import { Icon } from "@/lib/icons/Icon";
 import {
   SpecializationBadge,
@@ -11,7 +12,7 @@ import {
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { deleteCourseAction } from "@/server-actions/admin";
 
-export const metadata = { title: "Admin · Coschappen" };
+export const metadata = { title: "Admin - Coschappen" };
 
 export default async function AdminCoursesPage() {
   const supabase = await createSupabaseServerClient();
@@ -25,21 +26,24 @@ export default async function AdminCoursesPage() {
     supabase.from("specializations").select("id, code, name"),
   ]);
 
+  const allSpecs = specsRes.data ?? [];
+
   const specLookup = new Map<number, { code: string; name: string }>();
-  for (const s of specsRes.data ?? []) {
+  for (const s of allSpecs) {
     specLookup.set(s.id, { code: s.code, name: s.name });
   }
   const specsByCourse = new Map<string, SpecializationPill[]>();
+  const rawSpecsByCourse = new Map<string, { specialization_id: number; role: "core" | "elective" }[]>();
   for (const m of mappingRes.data ?? []) {
     const spec = specLookup.get(m.specialization_id);
     if (!spec) continue;
     const list = specsByCourse.get(m.course_id) ?? [];
-    list.push({
-      code: spec.code,
-      name: spec.name,
-      role: m.role as "core" | "elective",
-    });
+    list.push({ code: spec.code, name: spec.name, role: m.role as "core" | "elective" });
     specsByCourse.set(m.course_id, list);
+
+    const raw = rawSpecsByCourse.get(m.course_id) ?? [];
+    raw.push({ specialization_id: m.specialization_id, role: m.role as "core" | "elective" });
+    rawSpecsByCourse.set(m.course_id, raw);
   }
 
   const courses = (coursesRes.data ?? []).filter((c) => c.id);
@@ -78,6 +82,7 @@ export default async function AdminCoursesPage() {
           <tbody>
             {courses.map((course) => {
               const specs = specsByCourse.get(course.id!) ?? [];
+              const rawSpecs = rawSpecsByCourse.get(course.id!) ?? [];
               const deleteCourse = deleteCourseAction.bind(null, course.id!);
               return (
                 <tr
@@ -90,16 +95,10 @@ export default async function AdminCoursesPage() {
                         className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md text-white"
                         style={{ backgroundColor: course.color ?? "#001158" }}
                       >
-                        <Icon
-                          name={course.icon}
-                          size={16}
-                          className="text-white"
-                        />
+                        <Icon name={course.icon} size={16} className="text-white" />
                       </span>
                       <div className="min-w-0">
-                        <div className="font-medium text-foreground">
-                          {course.title}
-                        </div>
+                        <div className="font-medium text-foreground">{course.title}</div>
                         <div className="mt-1 flex flex-wrap gap-1">
                           {specs.slice(0, 6).map((s) => (
                             <SpecializationBadge
@@ -124,19 +123,26 @@ export default async function AdminCoursesPage() {
                   </td>
                   <td className="px-3 py-3 align-middle">
                     <div className="flex justify-end gap-2">
-                      <Button
-                        asChild
-                        variant="outline"
-                        size="sm"
-                      >
-                        <Link
-                          href={`/coschappen/${course.slug}`}
-                          target="_blank"
-                        >
+                      <Button asChild variant="outline" size="sm">
+                        <Link href={`/coschappen/${course.slug}`} target="_blank">
                           <ExternalLink size={14} />
                           <span className="sr-only sm:not-sr-only">Bekijk</span>
                         </Link>
                       </Button>
+                      <CourseEditModal
+                        course={{
+                          id: course.id!,
+                          title: course.title!,
+                          location: course.location ?? "",
+                          description: course.description ?? "",
+                          studiegids_url: course.studiegids_url ?? "",
+                          color: course.color ?? "#001158",
+                          icon: course.icon ?? "hospital",
+                          ec: course.ec ?? 6,
+                        }}
+                        allSpecs={allSpecs}
+                        currentSpecs={rawSpecs}
+                      />
                       <ConfirmDeleteButton
                         title={`"${course.title}" verwijderen?`}
                         description="Dit verwijdert het coschap en alle bijbehorende reviews definitief. Dit kan niet ongedaan worden gemaakt."

@@ -44,7 +44,7 @@ export default async function CourseDetailPage({
   return (
     <>
       <section
-        className="border-b border-border"
+        className="animate-fade-up border-b border-border"
         style={{
           background: `linear-gradient(180deg, ${course.color}08 0%, transparent 100%)`,
         }}
@@ -84,7 +84,7 @@ export default async function CourseDetailPage({
             <Button
               asChild
               size="lg"
-              className="bg-accent text-accent-foreground hover:bg-accent/90 sm:self-start"
+              className="w-full bg-accent text-accent-foreground hover:bg-accent/90 sm:w-auto sm:self-start"
             >
               <Link href={`/coschappen/${course.slug}/review`}>
                 <Pencil size={16} /> Review schrijven
@@ -92,7 +92,7 @@ export default async function CourseDetailPage({
             </Button>
           </div>
 
-          <div className="mt-8 grid grid-cols-2 gap-x-6 gap-y-4 rounded-lg border border-border bg-card p-5 sm:grid-cols-2">
+          <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-4 rounded-lg border border-border bg-card p-5 sm:gap-x-6">
             <StatPill
               label="Score"
               value={course.avg_rating ? course.avg_rating.toFixed(1) : "—"}
@@ -103,7 +103,7 @@ export default async function CourseDetailPage({
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
+      <section className="animate-fade-up-d1 mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
         <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
           <ReviewListSection
             courseSlug={course.slug}

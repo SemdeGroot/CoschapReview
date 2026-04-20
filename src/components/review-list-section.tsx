@@ -21,7 +21,14 @@ type Props = {
 
 export function ReviewListSection({ courseSlug, reviewCount, reviews }: Props) {
   const [sort, setSort] = useState(DEFAULT_REVIEW_SORT);
+  const [sortVersion, setSortVersion] = useState(0);
+
   const sortOption = resolveReviewSort(sort);
+
+  function handleSort(value: string) {
+    setSort(value);
+    setSortVersion((v) => v + 1);
+  }
 
   const sortedReviews = [...reviews].sort((a, b) => {
     const left = a[sortOption.column as keyof ReviewCardData];
@@ -55,7 +62,7 @@ export function ReviewListSection({ courseSlug, reviewCount, reviews }: Props) {
           )}
         </div>
         {reviews.length > 0 && (
-          <SortDropdown options={REVIEW_SORT_OPTIONS} value={sort} onChange={setSort} />
+          <SortDropdown options={REVIEW_SORT_OPTIONS} value={sort} onChange={handleSort} />
         )}
       </div>
 
@@ -79,8 +86,17 @@ export function ReviewListSection({ courseSlug, reviewCount, reviews }: Props) {
         </div>
       ) : (
         <div className="space-y-3">
-          {sortedReviews.map((review) => (
-            <ReviewCard key={review.id} review={review} />
+          {sortedReviews.map((review, index) => (
+            <div
+              key={`${sortVersion}-${review.id}`}
+              style={
+                sortVersion > 0
+                  ? { animation: `fade-up 0.35s ${index * 40}ms ease-out both` }
+                  : undefined
+              }
+            >
+              <ReviewCard review={review} />
+            </div>
           ))}
         </div>
       )}

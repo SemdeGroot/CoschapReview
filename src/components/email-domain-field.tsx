@@ -33,7 +33,7 @@ export function EmailDomainField({
   return (
     <div className="space-y-2">
       <Label htmlFor="email-local-part">E-mailadres</Label>
-      <div className="grid gap-2 sm:grid-cols-[minmax(0,1fr)_220px]">
+      <div className="grid gap-2 md:grid-cols-[minmax(0,1fr)_260px]">
         <Input
           id="email-local-part"
           type="text"

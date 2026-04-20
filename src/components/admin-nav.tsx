@@ -21,7 +21,7 @@ export function AdminNav() {
             key={tab.href}
             href={tab.href}
             className={cn(
-              "relative px-3 py-2 text-sm font-medium transition-colors",
+              "relative px-2 py-2 text-xs font-medium transition-colors sm:px-3 sm:text-sm",
               active
                 ? "text-foreground"
                 : "text-muted-foreground hover:text-foreground",

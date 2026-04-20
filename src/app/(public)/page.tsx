@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { ArrowRight, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -14,33 +13,33 @@ export default async function LandingPage() {
     <>
       <section className="border-b border-border bg-gradient-to-b from-leiden-surface to-background">
         <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <h1 className="max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
+          <h1 className="animate-fade-up max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
             Kies je coschap op basis van echte ervaringen.
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Begeleiding, sfeer, werkdruk -- door studenten die er zelf meegelopen hebben, in
+          <p className="animate-fade-up-d1 mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
+            Beoordelingen door studenten die zelf meegelopen hebben in
             openbare, ziekenhuis- en poliklinische apotheken.
           </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
+          <div className="animate-fade-up-d2 mt-8 flex flex-wrap items-center gap-3">
             <Button
               asChild
               size="lg"
               className="bg-accent text-accent-foreground hover:bg-accent/90"
             >
-              <Link href="#coschappen">
+              <a href="#coschappen">
                 Bekijk coschappen <ArrowRight size={16} />
-              </Link>
+              </a>
             </Button>
           </div>
         </div>
       </section>
 
-      <section id="coschappen" className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+      <section id="coschappen" className="animate-fade-up-d3 mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
         <div className="mb-6">
           <div>
             <h2 className="text-xl font-semibold text-foreground">Alle coschappen</h2>
             <p className="text-sm text-muted-foreground">
-              {courses.length} coschap{courses.length === 1 ? "" : "pen"} verdeeld over 2 categorieen
+              {courses.length} verschillende coschaplocaties
             </p>
           </div>
         </div>

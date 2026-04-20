@@ -21,14 +21,6 @@ export function ReviewCard({ review }: { review: ReviewCardData }) {
       <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-foreground">
         {review.body}
       </p>
-      <dl className="mt-4 grid grid-cols-1 gap-3 border-t border-border pt-3 text-xs">
-        <div>
-          <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">Score</dt>
-          <dd className="mt-0.5 font-medium tabular-nums text-foreground">
-            {review.rating.toFixed(1)} <span className="text-muted-foreground">/ 5</span>
-          </dd>
-        </div>
-      </dl>
     </article>
   );
 }

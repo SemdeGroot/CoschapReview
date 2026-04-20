@@ -36,10 +36,10 @@ export function SearchInput({
         <button
           type="button"
           onClick={() => onChange("")}
-          className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1 text-muted-foreground hover:bg-secondary hover:text-foreground"
+          className="absolute right-1.5 top-1/2 -translate-y-1/2 rounded-md p-2 text-muted-foreground hover:bg-secondary hover:text-foreground"
           aria-label="Zoekopdracht wissen"
         >
-          <X size={14} />
+          <X size={16} />
         </button>
       )}
     </div>

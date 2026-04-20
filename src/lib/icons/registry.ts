@@ -1,5 +1,5 @@
 import type { ComponentType, SVGProps } from "react";
-import { Building2, Store } from "lucide-react";
+import { Hospital, Store } from "lucide-react";
 
 export type IconMeta = {
   key: string;
@@ -8,7 +8,7 @@ export type IconMeta = {
 };
 
 export const iconRegistry: IconMeta[] = [
-  { key: "hospital", label: "Hospital pharmacy", component: Building2 },
+  { key: "hospital", label: "Hospital pharmacy", component: Hospital },
   { key: "public", label: "Public pharmacy", component: Store },
 ];
 

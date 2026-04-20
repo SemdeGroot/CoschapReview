@@ -18,6 +18,9 @@ const bitter = Bitter({
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://farmacoschap.nl"),
+  icons: {
+    icon: "/logo.png",
+  },
   title: {
     default: "Farmacoschap",
     template: "%s | Farmacoschap",

@@ -113,7 +113,7 @@ export function ReviewFlow({ course, initialEmail }: Props) {
         <CardHeader>
           <CardTitle className="text-2xl">Bevestig je e-mailadres</CardTitle>
           <CardDescription>
-            Je ontvangt een 6-cijferige code om te bevestigen dat je een echte reviewer bent. Je
+            Je ontvangt een 6-cijferige code om te bevestigen dat je een echte student bent. Je
             review blijft anoniem en je e-mailadres wordt nergens getoond.
           </CardDescription>
         </CardHeader>
@@ -195,7 +195,7 @@ export function ReviewFlow({ course, initialEmail }: Props) {
       <CardHeader>
         <CardTitle className="text-2xl">Schrijf je review</CardTitle>
         <CardDescription>
-          Je reviewt <span className="font-medium text-foreground">{course.title}</span>.
+          Je beoordeelt <span className="font-medium text-foreground">{course.title}</span>.
         </CardDescription>
       </CardHeader>
       <form onSubmit={onSubmitReview}>
@@ -226,13 +226,13 @@ export function ReviewFlow({ course, initialEmail }: Props) {
               value={body}
               onChange={(e) => setBody(e.target.value)}
               disabled={pending}
-              className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+              className="w-full min-h-[100px] sm:min-h-[140px] max-h-[400px] rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
             />
             <p className="text-xs text-muted-foreground">
               {body.length} / 4000
             </p>
             <p className="text-xs text-muted-foreground">
-              Houd je review netjes, feitelijk en behulpzaam voor andere studenten. Onnodig kwetsende of ongepaste reviews kunnen worden verwijderd.
+              Houd je review netjes, feitelijk en behulpzaam voor andere studenten. Kwetsende of ongepaste reviews worden verwijderd.
             </p>
           </div>
 
