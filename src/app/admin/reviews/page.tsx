@@ -7,9 +7,9 @@ import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { deleteReviewAction } from "@/server-actions/admin";
 
-export const metadata = { title: "Admin · Reviews" };
+export const metadata = { title: "Admin · Beoordelingen" };
 
-const DATE_FMT = new Intl.DateTimeFormat("en-GB", {
+const DATE_FMT = new Intl.DateTimeFormat("nl-NL", {
   year: "numeric",
   month: "short",
   day: "numeric",
@@ -19,7 +19,7 @@ export default async function AdminReviewsPage() {
   const supabase = await createSupabaseServerClient();
   const { data: reviews } = await supabase
     .from("reviews")
-    .select("id, title, body, rating, difficulty, workload_hours, created_at, author_id, course_id, courses(code, title)")
+    .select("id, title, body, rating, created_at, author_id, course_id, courses(slug, title)")
     .order("created_at", { ascending: false });
 
   const authorIds = Array.from(
@@ -45,10 +45,10 @@ export default async function AdminReviewsPage() {
     <div className="space-y-4">
       <div>
         <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-          Reviews
+          Beoordelingen
         </h1>
         <p className="text-sm text-muted-foreground">
-          {rows.length} review{rows.length === 1 ? "" : "s"} published.
+          {rows.length} review{rows.length === 1 ? "" : "s"} gepubliceerd.
         </p>
       </div>
 
@@ -56,10 +56,10 @@ export default async function AdminReviewsPage() {
         <div className="rounded-lg border border-dashed border-border bg-card p-10 text-center">
           <MessageSquare size={24} className="mx-auto text-muted-foreground" />
           <h2 className="mt-2 text-base font-semibold text-foreground">
-            No reviews yet
+            Nog geen reviews
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Reviews appear here as soon as students publish them.
+            Nieuwe reviews verschijnen hier zodra studenten ze plaatsen.
           </p>
         </div>
       ) : (
@@ -75,13 +75,13 @@ export default async function AdminReviewsPage() {
                     <h3 className="text-base font-semibold text-foreground">
                       {r.title}
                     </h3>
-                    {r.courses?.code && (
+                    {r.courses?.slug && (
                       <Link
-                        href={`/coschappen/${r.courses.code}`}
+                        href={`/coschappen/${r.courses.slug}`}
                         target="_blank"
                         className="inline-flex items-center gap-1 rounded-md border border-border px-1.5 py-0.5 font-mono text-xs text-muted-foreground hover:bg-secondary"
                       >
-                        {r.courses.code}
+                        Bekijk coschap
                         <ExternalLink size={10} />
                       </Link>
                     )}
@@ -97,10 +97,10 @@ export default async function AdminReviewsPage() {
                 <div className="flex items-start gap-3">
                   <Rating value={r.rating} size="md" />
                   <ConfirmDeleteButton
-                    title="Delete this review?"
-                    description="The review will be permanently removed. The reviewer will be able to submit a new one."
+                    title="Deze review verwijderen?"
+                    description="De review wordt definitief verwijderd. De reviewer kan daarna opnieuw een review plaatsen."
                     action={async () => deleteReviewAction(r.id)}
-                    successMessage="Review deleted."
+                    successMessage="Review verwijderd."
                   />
                 </div>
               </header>
@@ -110,18 +110,10 @@ export default async function AdminReviewsPage() {
               <dl className="mt-4 flex gap-5 border-t border-border pt-3 text-xs">
                 <div>
                   <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                    Difficulty
+                    Score
                   </dt>
                   <dd className="mt-0.5 font-medium tabular-nums">
-                    {r.difficulty.toFixed(1)} / 5
-                  </dd>
-                </div>
-                <div>
-                  <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">
-                    Hours
-                  </dt>
-                  <dd className="mt-0.5 font-medium tabular-nums">
-                    {r.workload_hours} h/wk
+                    {r.rating.toFixed(1)} / 5
                   </dd>
                 </div>
               </dl>

@@ -11,7 +11,13 @@ export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: { params: RouteParams }) {
   const { code } = await params;
-  return { title: `Review ${code} · CoschapReview` };
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("courses")
+    .select("title")
+    .eq("slug", code)
+    .maybeSingle();
+  return { title: data ? `Review schrijven · ${data.title}` : "Review schrijven" };
 }
 
 export default async function AddReviewPage({ params }: { params: RouteParams }) {
@@ -20,8 +26,8 @@ export default async function AddReviewPage({ params }: { params: RouteParams })
 
   const { data: course } = await supabase
     .from("courses")
-    .select("id, code, title")
-    .eq("code", code)
+    .select("id, slug, title")
+    .eq("slug", code)
     .maybeSingle();
   if (!course) notFound();
 
@@ -32,13 +38,13 @@ export default async function AddReviewPage({ params }: { params: RouteParams })
   return (
     <div className="mx-auto w-full max-w-xl px-4 py-10 sm:px-6 sm:py-14">
       <Link
-        href={`/coschappen/${course.code}`}
+        href={`/coschappen/${course.slug}`}
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft size={14} /> Back to {course.code}
+        <ArrowLeft size={14} /> Terug naar {course.title}
       </Link>
       <ReviewFlow
-        course={{ id: course.id, code: course.code, title: course.title }}
+        course={{ id: course.id, slug: course.slug, title: course.title }}
         initialEmail={user?.email ?? null}
       />
     </div>

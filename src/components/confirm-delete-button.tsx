@@ -34,7 +34,7 @@ export function ConfirmDeleteButton({
   description,
   action,
   successMessage,
-  buttonLabel = "Delete",
+  buttonLabel = "Verwijderen",
   size = "sm",
 }: Props) {
   const [open, setOpen] = useState(false);
@@ -68,7 +68,7 @@ export function ConfirmDeleteButton({
           <AlertDialogDescription>{description}</AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={pending}>Cancel</AlertDialogCancel>
+          <AlertDialogCancel disabled={pending}>Annuleren</AlertDialogCancel>
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
@@ -77,7 +77,7 @@ export function ConfirmDeleteButton({
             disabled={pending}
             className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
           >
-            {pending ? "Deleting..." : buttonLabel}
+            {pending ? "Verwijderen..." : buttonLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

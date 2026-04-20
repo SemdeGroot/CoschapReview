@@ -91,35 +91,38 @@ export type Database = {
       }
       courses: {
         Row: {
-          code: string
+          slug: string
           color: string
           created_at: string
           description: string
           ec: number
           icon: string
           id: string
+          location: string
           studiegids_url: string
           title: string
         }
         Insert: {
-          code: string
+          slug: string
           color?: string
           created_at?: string
           description: string
           ec?: number
           icon?: string
           id?: string
+          location: string
           studiegids_url: string
           title: string
         }
         Update: {
-          code?: string
+          slug?: string
           color?: string
           created_at?: string
           description?: string
           ec?: number
           icon?: string
           id?: string
+          location?: string
           studiegids_url?: string
           title?: string
         }
@@ -131,33 +134,27 @@ export type Database = {
           body: string
           course_id: string
           created_at: string
-          difficulty: number
           id: string
           rating: number
           title: string
-          workload_hours: number
         }
         Insert: {
           author_id: string
           body: string
           course_id: string
           created_at?: string
-          difficulty: number
           id?: string
           rating: number
           title: string
-          workload_hours: number
         }
         Update: {
           author_id?: string
           body?: string
           course_id?: string
           created_at?: string
-          difficulty?: number
           id?: string
           rating?: number
           title?: string
-          workload_hours?: number
         }
         Relationships: [
           {
@@ -201,17 +198,16 @@ export type Database = {
     Views: {
       courses_with_stats: {
         Row: {
-          avg_difficulty: number | null
           avg_rating: number | null
-          avg_workload: number | null
-          code: string | null
           color: string | null
           created_at: string | null
           description: string | null
           ec: number | null
           icon: string | null
           id: string | null
+          location: string | null
           review_count: number | null
+          slug: string | null
           studiegids_url: string | null
           title: string | null
         }
@@ -222,31 +218,25 @@ export type Database = {
           body: string | null
           course_id: string | null
           created_at: string | null
-          difficulty: number | null
           id: string | null
           rating: number | null
           title: string | null
-          workload_hours: number | null
         }
         Insert: {
           body?: string | null
           course_id?: string | null
           created_at?: string | null
-          difficulty?: number | null
           id?: string | null
           rating?: number | null
           title?: string | null
-          workload_hours?: number | null
         }
         Update: {
           body?: string | null
           course_id?: string | null
           created_at?: string | null
-          difficulty?: number | null
           id?: string | null
           rating?: number | null
           title?: string | null
-          workload_hours?: number | null
         }
         Relationships: [
           {
@@ -377,4 +367,3 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
-

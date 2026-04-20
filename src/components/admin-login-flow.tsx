@@ -18,6 +18,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { requestOtpAction } from "@/server-actions/auth";
 import { verifyAdminOtpAction } from "@/server-actions/admin";
+import { ALLOWED_EMAIL_DOMAIN_LABEL, ALLOWED_EMAIL_EXAMPLES } from "@/lib/email-domains";
 type Stage = "email" | "code";
 
 export function AdminLoginFlow() {
@@ -37,7 +38,7 @@ export function AdminLoginFlow() {
         toast.error(res.error);
         return;
       }
-      toast.success("We sent a 6-digit code to your email.");
+      toast.success("Er is een 6-cijferige code naar je e-mailadres gestuurd.");
       setStage("code");
     });
   }
@@ -46,7 +47,7 @@ export function AdminLoginFlow() {
     e.preventDefault();
     const token = code.replace(/\s+/g, "");
     if (!/^\d{6}$/.test(token)) {
-      toast.error("Enter the 6-digit code from your email.");
+      toast.error("Vul de 6-cijferige code uit je e-mail in.");
       return;
     }
     startTransition(async () => {
@@ -65,40 +66,43 @@ export function AdminLoginFlow() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2 text-2xl">
           <ShieldCheck size={20} className="text-primary" />
-          Admin access
+          Admintoegang
         </CardTitle>
         <CardDescription>
           {stage === "email"
-            ? "Verify your email to continue."
-            : `We emailed a 6-digit code to ${email}.`}
+            ? "Bevestig je e-mailadres om verder te gaan."
+            : `Er is een 6-cijferige code gestuurd naar ${email}.`}
         </CardDescription>
       </CardHeader>
 
       {stage === "email" ? (
         <form onSubmit={onSendCode}>
           <CardContent className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">E-mailadres</Label>
             <Input
               id="email"
               type="email"
               autoComplete="email"
               required
-              placeholder="naam@example.com"
+              placeholder={ALLOWED_EMAIL_EXAMPLES[0]}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={pending}
             />
+            <p className="text-xs text-muted-foreground">
+              Toegestaan: {ALLOWED_EMAIL_DOMAIN_LABEL}
+            </p>
           </CardContent>
           <CardFooter className="mt-5">
             <Button type="submit" className="w-full" disabled={pending}>
-              <Mail size={16} /> {pending ? "Sending..." : "Send code"}
+              <Mail size={16} /> {pending ? "Versturen..." : "Code versturen"}
             </Button>
           </CardFooter>
         </form>
       ) : (
         <form onSubmit={onVerifyCode}>
           <CardContent className="space-y-2">
-            <Label htmlFor="code">Verification code</Label>
+            <Label htmlFor="code">Verificatiecode</Label>
             <Input
               id="code"
               inputMode="numeric"
@@ -115,7 +119,7 @@ export function AdminLoginFlow() {
           </CardContent>
           <CardFooter className="mt-5 flex-col gap-2">
             <Button type="submit" className="w-full" disabled={pending}>
-              {pending ? "Verifying..." : "Verify"}
+              {pending ? "Controleren..." : "Bevestigen"}
             </Button>
             <Button
               type="button"
@@ -128,7 +132,7 @@ export function AdminLoginFlow() {
               }}
               disabled={pending}
             >
-              <ArrowLeft size={14} /> Use a different email
+              <ArrowLeft size={14} /> Ander e-mailadres gebruiken
             </Button>
           </CardFooter>
         </form>

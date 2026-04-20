@@ -17,15 +17,15 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LevelInput } from "@/components/level-input";
 import { RatingInput } from "@/components/rating-input";
 import { requestOtpAction, verifyOtpAction } from "@/server-actions/auth";
 import { submitReviewAction } from "@/server-actions/reviews";
+import { ALLOWED_EMAIL_DOMAIN_LABEL, ALLOWED_EMAIL_EXAMPLES } from "@/lib/email-domains";
 
 type Stage = "email" | "code" | "form";
 
 type Props = {
-  course: { id: string; code: string; title: string };
+  course: { id: string; slug: string; title: string };
   initialEmail: string | null;
 };
 
@@ -38,8 +38,6 @@ export function ReviewFlow({ course, initialEmail }: Props) {
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
   const [rating, setRating] = useState(0);
-  const [difficulty, setDifficulty] = useState(0);
-  const [workload, setWorkload] = useState<number | "">("");
 
   const [pending, startTransition] = useTransition();
 
@@ -53,7 +51,7 @@ export function ReviewFlow({ course, initialEmail }: Props) {
         toast.error(res.error);
         return;
       }
-      toast.success("We sent a 6-digit code to your email.");
+      toast.success("Er is een 6-cijferige code naar je e-mailadres gestuurd.");
       setStage("code");
     });
   }
@@ -62,7 +60,7 @@ export function ReviewFlow({ course, initialEmail }: Props) {
     e.preventDefault();
     const token = code.replace(/\s+/g, "");
     if (!/^\d{6}$/.test(token)) {
-      toast.error("Enter the 6-digit code from your email.");
+      toast.error("Vul de 6-cijferige code uit je e-mail in.");
       return;
     }
     startTransition(async () => {
@@ -71,15 +69,15 @@ export function ReviewFlow({ course, initialEmail }: Props) {
         toast.error(res.error);
         return;
       }
-      toast.success("Verified.");
+      toast.success("E-mailadres bevestigd.");
       setStage("form");
     });
   }
 
   function onSubmitReview(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (!rating || !difficulty || !workload) {
-      toast.error("Please fill in rating, difficulty, and average hours.");
+    if (!rating) {
+      toast.error("Kies een score met sterren.");
       return;
     }
     startTransition(async () => {
@@ -88,14 +86,12 @@ export function ReviewFlow({ course, initialEmail }: Props) {
         title: title.trim(),
         body: body.trim(),
         rating,
-        difficulty,
-        workload_hours: Number(workload),
       });
       if (!res.ok) {
         toast.error(res.error);
         return;
       }
-      toast.success("Review published. Thanks!");
+      toast.success("Je review is geplaatst.");
       router.push(res.redirectTo);
       router.refresh();
     });
@@ -105,29 +101,32 @@ export function ReviewFlow({ course, initialEmail }: Props) {
     return (
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Verify your email</CardTitle>
+          <CardTitle className="text-2xl">Bevestig je e-mailadres</CardTitle>
           <CardDescription>
-            We send a 6-digit code to confirm you are a real reviewer. Your review is posted
-            anonymously and your email is never shown on the site.
+            Je ontvangt een 6-cijferige code om te bevestigen dat je een echte reviewer bent. Je
+            review blijft anoniem en je e-mailadres wordt nergens getoond.
           </CardDescription>
         </CardHeader>
         <form onSubmit={onSendCode}>
           <CardContent className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="email">E-mailadres</Label>
             <Input
               id="email"
               type="email"
               autoComplete="email"
               required
-              placeholder="naam@example.com"
+              placeholder={ALLOWED_EMAIL_EXAMPLES[0]}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={pending}
             />
+            <p className="text-xs text-muted-foreground">
+              Toegestaan: {ALLOWED_EMAIL_DOMAIN_LABEL}
+            </p>
           </CardContent>
           <CardFooter className="mt-5">
             <Button type="submit" className="w-full" disabled={pending}>
-              <Mail size={16} /> {pending ? "Sending..." : "Send code"}
+              <Mail size={16} /> {pending ? "Versturen..." : "Code versturen"}
             </Button>
           </CardFooter>
         </form>
@@ -139,15 +138,15 @@ export function ReviewFlow({ course, initialEmail }: Props) {
     return (
       <Card className="shadow-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Enter code</CardTitle>
+          <CardTitle className="text-2xl">Vul je code in</CardTitle>
           <CardDescription>
-            We emailed a 6-digit code to{" "}
+            Er is een 6-cijferige code gestuurd naar{" "}
             <span className="font-medium text-foreground">{email}</span>.
           </CardDescription>
         </CardHeader>
         <form onSubmit={onVerifyCode}>
           <CardContent className="space-y-2">
-            <Label htmlFor="code">Verification code</Label>
+            <Label htmlFor="code">Verificatiecode</Label>
             <Input
               id="code"
               inputMode="numeric"
@@ -164,7 +163,7 @@ export function ReviewFlow({ course, initialEmail }: Props) {
           </CardContent>
           <CardFooter className="mt-5 flex-col gap-2">
             <Button type="submit" className="w-full" disabled={pending}>
-              {pending ? "Verifying..." : "Verify and continue"}
+              {pending ? "Controleren..." : "Bevestigen en doorgaan"}
             </Button>
             <Button
               type="button"
@@ -177,7 +176,7 @@ export function ReviewFlow({ course, initialEmail }: Props) {
               }}
               disabled={pending}
             >
-              <ArrowLeft size={14} /> Use a different email
+              <ArrowLeft size={14} /> Ander e-mailadres gebruiken
             </Button>
           </CardFooter>
         </form>
@@ -190,27 +189,26 @@ export function ReviewFlow({ course, initialEmail }: Props) {
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <CardTitle className="text-2xl">Write your review</CardTitle>
+            <CardTitle className="text-2xl">Schrijf je review</CardTitle>
             <CardDescription>
-              Reviewing <span className="font-medium text-foreground">{course.title}</span> ·{" "}
-              <span className="font-mono text-xs">{course.code}</span>
+              Je reviewt <span className="font-medium text-foreground">{course.title}</span>.
             </CardDescription>
           </div>
           <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-secondary px-2 py-1 text-[11px] font-medium text-muted-foreground">
-            <CheckCircle2 size={12} className="text-accent" /> Verified
+            <CheckCircle2 size={12} className="text-accent" /> Bevestigd
           </span>
         </div>
       </CardHeader>
       <form onSubmit={onSubmitReview}>
         <CardContent className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
+            <Label htmlFor="title">Titel</Label>
             <Input
               id="title"
               required
               minLength={3}
               maxLength={120}
-              placeholder="e.g. Strong supervision, broad clinical exposure, but quite busy"
+              placeholder="Bijvoorbeeld: goede begeleiding, veel geleerd, maar wel druk"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               disabled={pending}
@@ -218,14 +216,14 @@ export function ReviewFlow({ course, initialEmail }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="body">Your experience</Label>
+            <Label htmlFor="body">Jouw ervaring</Label>
             <textarea
               id="body"
               required
               minLength={10}
               maxLength={4000}
               rows={6}
-              placeholder="How was the supervision? What kind of work did you do? What should future students know before starting here?"
+              placeholder="Hoe was de begeleiding? Wat deed je op een normale dag? Wat moeten toekomstige studenten vooraf weten?"
               value={body}
               onChange={(e) => setBody(e.target.value)}
               disabled={pending}
@@ -237,36 +235,11 @@ export function ReviewFlow({ course, initialEmail }: Props) {
           </div>
 
           <div className="space-y-2">
-            <Label>Overall rating</Label>
+            <Label>Score</Label>
             <RatingInput value={rating} onChange={setRating} />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Difficulty</Label>
-            <LevelInput
-              value={difficulty}
-              onChange={setDifficulty}
-              labels={["Very easy", "Easy", "Moderate", "Hard", "Very hard"]}
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="workload">Average hours per week</Label>
-            <Input
-              id="workload"
-              type="number"
-              min={1}
-              max={80}
-              required
-              placeholder="10"
-              value={workload}
-              onChange={(e) => {
-                const v = e.target.value;
-                setWorkload(v === "" ? "" : Number(v));
-              }}
-              disabled={pending}
-              className="max-w-[160px]"
-            />
+            <p className="text-xs text-muted-foreground">
+              Geef dit coschap een simpele beoordeling van 1 tot 5 sterren.
+            </p>
           </div>
         </CardContent>
         <CardFooter className="mt-4 flex-col gap-2">
@@ -275,10 +248,10 @@ export function ReviewFlow({ course, initialEmail }: Props) {
             className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
             disabled={pending}
           >
-            {pending ? "Publishing..." : "Publish review"}
+            {pending ? "Plaatsen..." : "Review plaatsen"}
           </Button>
           <Button asChild type="button" variant="ghost" size="sm" className="w-full">
-            <Link href={`/coschappen/${course.code}`}>Cancel</Link>
+            <Link href={`/coschappen/${course.slug}`}>Annuleren</Link>
           </Button>
         </CardFooter>
       </form>

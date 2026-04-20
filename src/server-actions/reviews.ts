@@ -7,11 +7,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 const reviewInputSchema = z.object({
   courseId: z.string().uuid(),
-  title: z.string().trim().min(3, "Title must be at least 3 characters.").max(120),
-  body: z.string().trim().min(10, "Review must be at least 10 characters.").max(4000),
+  title: z.string().trim().min(3, "De titel moet minimaal 3 tekens bevatten.").max(120),
+  body: z.string().trim().min(10, "De review moet minimaal 10 tekens bevatten.").max(4000),
   rating: z.number().int().min(1).max(5),
-  difficulty: z.number().int().min(1).max(5),
-  workload_hours: z.number().int().min(1).max(80),
 });
 
 export type ReviewSubmitResult =
@@ -23,7 +21,7 @@ export async function submitReviewAction(
 ): Promise<ReviewSubmitResult> {
   const parsed = reviewInputSchema.safeParse(input);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input." };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Ongeldige invoer." };
   }
 
   const supabase = await createSupabaseServerClient();
@@ -33,7 +31,7 @@ export async function submitReviewAction(
   if (!user) {
     return {
       ok: false,
-      error: "Your session expired. Verify your email again.",
+      error: "Je sessie is verlopen. Bevestig je e-mailadres opnieuw.",
     };
   }
 
@@ -41,11 +39,11 @@ export async function submitReviewAction(
 
   const { data: course, error: courseError } = await supabase
     .from("courses")
-    .select("code")
+    .select("slug")
     .eq("id", courseId)
     .maybeSingle();
   if (courseError || !course) {
-    return { ok: false, error: "Coschap not found." };
+    return { ok: false, error: "Coschap niet gevonden." };
   }
 
   const { error } = await supabase.from("reviews").insert({
@@ -57,13 +55,13 @@ export async function submitReviewAction(
     if (error.code === "23505") {
       return {
         ok: false,
-        error: "You already reviewed this coschap. Ask an admin to remove your existing review first.",
+        error: "Je hebt dit coschap al beoordeeld. Vraag een admin om je bestaande review eerst te verwijderen.",
       };
     }
     return { ok: false, error: error.message };
   }
 
   revalidatePath("/");
-  revalidatePath(`/coschappen/${course.code}`);
-  return { ok: true, redirectTo: `/coschappen/${course.code}` };
+  revalidatePath(`/coschappen/${course.slug}`);
+  return { ok: true, redirectTo: `/coschappen/${course.slug}` };
 }

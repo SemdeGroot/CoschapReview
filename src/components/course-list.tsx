@@ -11,13 +11,12 @@ import { cn } from "@/lib/utils";
 
 export type CourseListItem = {
   id: string;
-  code: string;
+  slug: string;
   title: string;
+  location: string;
   color: string;
   icon: string;
   avg_rating: number;
-  avg_difficulty: number;
-  avg_workload: number;
   review_count: number;
   specializations: SpecializationPill[];
 };
@@ -30,9 +29,9 @@ export function CourseList({ courses }: Props) {
   if (courses.length === 0) {
     return (
       <div className="rounded-lg border border-border bg-card p-10 text-center">
-        <h3 className="text-base font-semibold text-foreground">No coschappen found</h3>
+        <h3 className="text-base font-semibold text-foreground">Geen coschappen gevonden</h3>
         <p className="mt-1 text-sm text-muted-foreground">
-          Try a different search or clear the filter.
+          Probeer een andere zoekterm of wis je filter.
         </p>
       </div>
     );
@@ -53,10 +52,8 @@ function DesktopTable({ courses }: Props) {
         <thead className="border-b border-border bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
           <tr>
             <th className="px-4 py-3 text-left font-medium">Coschap</th>
-            <th className="px-3 py-3 text-left font-medium">Code</th>
-            <th className="px-3 py-3 text-left font-medium">Rating</th>
-            <th className="px-3 py-3 text-left font-medium">Difficulty</th>
-            <th className="px-3 py-3 text-left font-medium">Hours</th>
+            <th className="px-3 py-3 text-left font-medium">Plaats</th>
+            <th className="px-3 py-3 text-left font-medium">Beoordeling</th>
             <th className="px-3 py-3 text-right font-medium">Reviews</th>
           </tr>
         </thead>
@@ -74,7 +71,7 @@ function CourseRow({ course }: { course: CourseListItem }) {
   return (
     <tr className="group border-b border-border last:border-0 transition-colors hover:bg-secondary/50">
       <td className="px-4 py-3">
-        <Link href={`/coschappen/${course.code}`} className="flex items-start gap-3">
+        <Link href={`/coschappen/${course.slug}`} className="flex items-start gap-3">
           <span
             className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md text-white"
             style={{ backgroundColor: course.color }}
@@ -93,17 +90,11 @@ function CourseRow({ course }: { course: CourseListItem }) {
           </span>
         </Link>
       </td>
-      <td className="px-3 py-3 align-middle text-xs font-mono text-muted-foreground">
-        {course.code}
+      <td className="px-3 py-3 align-middle text-sm text-muted-foreground">
+        {course.location}
       </td>
       <td className="px-3 py-3 align-middle">
         <Rating value={course.avg_rating} />
-      </td>
-      <td className="px-3 py-3 align-middle">
-        <StatCell value={course.avg_difficulty} suffix="/ 5" />
-      </td>
-      <td className="px-3 py-3 align-middle">
-        <StatCell value={course.avg_workload} suffix="h/wk" />
       </td>
       <td className="px-3 py-3 align-middle text-right">
         <span className="inline-flex items-center gap-1 text-sm tabular-nums text-foreground">
@@ -115,23 +106,13 @@ function CourseRow({ course }: { course: CourseListItem }) {
   );
 }
 
-function StatCell({ value, suffix }: { value: number; suffix: string }) {
-  if (!value) return <span className="text-muted-foreground">-</span>;
-  return (
-    <span className="inline-flex items-baseline gap-1 tabular-nums">
-      <span className="text-sm font-medium text-foreground">{value.toFixed(1)}</span>
-      <span className="text-xs text-muted-foreground">{suffix}</span>
-    </span>
-  );
-}
-
 function MobileCards({ courses }: Props) {
   return (
     <div className="space-y-3 md:hidden">
       {courses.map((course) => (
         <Link
           key={course.id}
-          href={`/coschappen/${course.code}`}
+          href={`/coschappen/${course.slug}`}
           className={cn(
             "block rounded-lg border border-border bg-card p-4 shadow-sm transition-colors",
             "hover:border-primary/30 hover:bg-secondary/30",
@@ -145,13 +126,13 @@ function MobileCards({ courses }: Props) {
               <Icon name={course.icon} size={20} className="text-white" />
             </span>
             <div className="min-w-0 flex-1">
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="text-sm font-semibold leading-snug text-foreground">
-                  {course.title}
-                </h3>
-                <span className="text-xs font-mono text-muted-foreground shrink-0">
-                  {course.code}
-                </span>
+              <div className="flex items-start gap-2">
+                <div className="min-w-0">
+                  <h3 className="text-sm font-semibold leading-snug text-foreground">
+                    {course.title}
+                  </h3>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{course.location}</p>
+                </div>
               </div>
               <div className="mt-1.5 flex flex-wrap gap-1">
                 {course.specializations.slice(0, 4).map((s) => (
@@ -160,23 +141,11 @@ function MobileCards({ courses }: Props) {
               </div>
             </div>
           </div>
-          <dl className="mt-3 grid grid-cols-4 gap-2 border-t border-border pt-3 text-xs">
+          <dl className="mt-3 grid grid-cols-2 gap-2 border-t border-border pt-3 text-xs">
             <div>
-              <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">Rating</dt>
+              <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">Score</dt>
               <dd className="mt-0.5">
                 <Rating value={course.avg_rating} size="sm" />
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">Diff.</dt>
-              <dd className="mt-0.5 font-medium tabular-nums">
-                {course.avg_difficulty ? course.avg_difficulty.toFixed(1) : "-"}
-              </dd>
-            </div>
-            <div>
-              <dt className="text-[10px] uppercase tracking-wide text-muted-foreground">Hours</dt>
-              <dd className="mt-0.5 font-medium tabular-nums">
-                {course.avg_workload ? `${course.avg_workload.toFixed(1)}h` : "-"}
               </dd>
             </div>
             <div>

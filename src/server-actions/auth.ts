@@ -2,12 +2,20 @@
 
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ALLOWED_EMAIL_DOMAIN_LABEL, isAllowedEmailDomain } from "@/lib/email-domains";
 
-const emailSchema = z.string().trim().toLowerCase().email();
+const emailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .email()
+  .refine((value) => isAllowedEmailDomain(value), {
+    message: `Gebruik een universitair e-mailadres van ${ALLOWED_EMAIL_DOMAIN_LABEL}.`,
+  });
 
 const verifySchema = z.object({
   email: emailSchema,
-  code: z.string().regex(/^\d{6}$/, "Enter the 6-digit code."),
+  code: z.string().regex(/^\d{6}$/, "Vul de 6-cijferige code in."),
 });
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
@@ -19,7 +27,7 @@ export type ActionResult = { ok: true } | { ok: false; error: string };
 export async function requestOtpAction(rawEmail: string): Promise<ActionResult> {
   const parsed = emailSchema.safeParse(rawEmail);
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid email." };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Ongeldig e-mailadres." };
   }
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.signInWithOtp({
@@ -40,7 +48,7 @@ export async function verifyOtpAction(
 ): Promise<ActionResult> {
   const parsed = verifySchema.safeParse({ email, code });
   if (!parsed.success) {
-    return { ok: false, error: parsed.error.issues[0]?.message ?? "Invalid input." };
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Ongeldige invoer." };
   }
   const supabase = await createSupabaseServerClient();
   const { error } = await supabase.auth.verifyOtp({

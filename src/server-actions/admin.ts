@@ -5,19 +5,27 @@ import { redirect } from "next/navigation";
 import { z } from "zod";
 
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { ALLOWED_EMAIL_DOMAIN_LABEL, isAllowedEmailDomain } from "@/lib/email-domains";
 
 export type ActionResult<T = undefined> =
   | ({ ok: true } & (T extends undefined ? object : { data: T }))
   | { ok: false; error: string };
 
-const emailSchema = z.string().trim().toLowerCase().email();
+const emailSchema = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .email()
+  .refine((value) => isAllowedEmailDomain(value), {
+    message: `Gebruik een universitair e-mailadres van ${ALLOWED_EMAIL_DOMAIN_LABEL}.`,
+  });
 
 const verifySchema = z.object({
   email: emailSchema,
-  code: z.string().regex(/^\d{6}$/, "Enter the 6-digit code."),
+  code: z.string().regex(/^\d{6}$/, "Vul de 6-cijferige code in."),
 });
 
-const OPAQUE_ERROR = "Verification failed. Check your code and try again.";
+const OPAQUE_ERROR = "Verificatie mislukt. Controleer je code en probeer het opnieuw.";
 
 async function currentAdmin() {
   const supabase = await createSupabaseServerClient();
@@ -71,12 +79,12 @@ export async function deleteCourseAction(
   courseId: string,
 ): Promise<ActionResult> {
   const admin = await currentAdmin();
-  if (!admin) return { ok: false, error: "Forbidden." };
+  if (!admin) return { ok: false, error: "Geen toegang." };
 
   const supabase = await createSupabaseServerClient();
   const { data: course } = await supabase
     .from("courses")
-    .select("code")
+    .select("slug")
     .eq("id", courseId)
     .maybeSingle();
   const { error } = await supabase.from("courses").delete().eq("id", courseId);
@@ -84,7 +92,7 @@ export async function deleteCourseAction(
 
   revalidatePath("/");
   revalidatePath("/admin/coschappen");
-  if (course?.code) revalidatePath(`/coschappen/${course.code}`);
+  if (course?.slug) revalidatePath(`/coschappen/${course.slug}`);
   return { ok: true };
 }
 
@@ -92,12 +100,12 @@ export async function deleteReviewAction(
   reviewId: string,
 ): Promise<ActionResult> {
   const admin = await currentAdmin();
-  if (!admin) return { ok: false, error: "Forbidden." };
+  if (!admin) return { ok: false, error: "Geen toegang." };
 
   const supabase = await createSupabaseServerClient();
   const { data: review } = await supabase
     .from("reviews")
-    .select("course_id, courses(code)")
+    .select("course_id, courses(slug)")
     .eq("id", reviewId)
     .maybeSingle();
   const { error } = await supabase.from("reviews").delete().eq("id", reviewId);
@@ -105,6 +113,6 @@ export async function deleteReviewAction(
 
   revalidatePath("/");
   revalidatePath("/admin/reviews");
-  if (review?.courses?.code) revalidatePath(`/coschappen/${review.courses.code}`);
+  if (review?.courses?.slug) revalidatePath(`/coschappen/${review.courses.slug}`);
   return { ok: true };
 }

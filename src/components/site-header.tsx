@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Building2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 
@@ -9,18 +8,12 @@ export function SiteHeader() {
       <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
         <Link
           href="/"
-          className="flex items-center gap-2 font-semibold tracking-tight"
+          className="font-semibold tracking-tight"
         >
-          <span
-            className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground"
-            aria-hidden
-          >
-            <Building2 size={18} />
-          </span>
           <span className="text-base">
             CoschapReview
             <span className="ml-2 hidden text-xs font-normal text-muted-foreground sm:inline">
-              Coschap Apotheken
+              Farmacie coschappen
             </span>
           </span>
         </Link>
@@ -29,7 +22,7 @@ export function SiteHeader() {
           size="sm"
           className="bg-accent text-accent-foreground hover:bg-accent/90"
         >
-          <Link href="#coschappen">Browse coschappen</Link>
+          <Link href="#coschappen">Bekijk coschappen</Link>
         </Button>
       </div>
     </header>

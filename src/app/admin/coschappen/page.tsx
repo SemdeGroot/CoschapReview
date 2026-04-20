@@ -20,7 +20,7 @@ export default async function AdminCoursesPage() {
     supabase
       .from("courses_with_stats")
       .select("*")
-      .order("code", { ascending: true }),
+      .order("title", { ascending: true }),
     supabase.from("course_specializations").select("*"),
     supabase.from("specializations").select("id, code, name"),
   ]);
@@ -52,15 +52,15 @@ export default async function AdminCoursesPage() {
             Coschappen
           </h1>
           <p className="text-sm text-muted-foreground">
-            {courses.length} coschap{courses.length === 1 ? "" : "pen"} in the catalog.
+            {courses.length} coschap{courses.length === 1 ? "" : "pen"} in het overzicht.
           </p>
         </div>
         <Button
           disabled
-          title="Add coschap modal lands in the next step"
+          title="Toevoegen volgt in een volgende stap"
           className="bg-accent text-accent-foreground hover:bg-accent/90 disabled:opacity-60"
         >
-          <Plus size={14} /> Add coschap
+          <Plus size={14} /> Coschap toevoegen
         </Button>
       </div>
 
@@ -69,9 +69,10 @@ export default async function AdminCoursesPage() {
           <thead className="border-b border-border bg-muted/40 text-xs uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-4 py-3 text-left font-medium">Coschap</th>
+              <th className="px-3 py-3 text-left font-medium">Locatie</th>
               <th className="px-3 py-3 text-left font-medium">Code</th>
               <th className="px-3 py-3 text-right font-medium">Reviews</th>
-              <th className="px-3 py-3 text-right font-medium">Actions</th>
+              <th className="px-3 py-3 text-right font-medium">Acties</th>
             </tr>
           </thead>
           <tbody>
@@ -111,8 +112,11 @@ export default async function AdminCoursesPage() {
                       </div>
                     </div>
                   </td>
-                  <td className="px-3 py-3 align-middle font-mono text-xs text-muted-foreground">
-                    {course.code}
+                  <td className="px-3 py-3 align-middle text-sm text-muted-foreground">
+                    {course.location}
+                  </td>
+                  <td className="px-3 py-3 align-middle text-xs font-mono text-muted-foreground">
+                    {course.slug}
                   </td>
                   <td className="px-3 py-3 text-right align-middle tabular-nums">
                     {course.review_count ?? 0}
@@ -125,18 +129,18 @@ export default async function AdminCoursesPage() {
                         size="sm"
                       >
                         <Link
-                          href={`/coschappen/${course.code}`}
+                          href={`/coschappen/${course.slug}`}
                           target="_blank"
                         >
                           <ExternalLink size={14} />
-                          <span className="sr-only sm:not-sr-only">View</span>
+                          <span className="sr-only sm:not-sr-only">Bekijk</span>
                         </Link>
                       </Button>
                       <ConfirmDeleteButton
-                        title={`Delete "${course.title}"?`}
-                        description="This will permanently remove the coschap and cascade-delete all its reviews. This cannot be undone."
+                        title={`"${course.title}" verwijderen?`}
+                        description="Dit verwijdert het coschap en alle bijbehorende reviews definitief. Dit kan niet ongedaan worden gemaakt."
                         action={async () => deleteCourseAction(course.id!)}
-                        successMessage="Coschap deleted."
+                        successMessage="Coschap verwijderd."
                       />
                     </div>
                   </td>

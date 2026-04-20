@@ -16,8 +16,9 @@ create table if not exists public.specializations (
 
 create table if not exists public.courses (
   id             uuid primary key default gen_random_uuid(),
-  code           text unique not null,
+  slug           text unique not null,
   title          text not null,
+  location       text not null,
   description    text not null,
   studiegids_url text not null,
   color          text not null default '#001158',
@@ -41,8 +42,6 @@ create table if not exists public.reviews (
   title          text not null check (char_length(title) between 3 and 120),
   body           text not null check (char_length(body) between 10 and 4000),
   rating         smallint not null check (rating between 1 and 5),
-  difficulty     smallint not null check (difficulty between 1 and 5),
-  workload_hours smallint not null check (workload_hours between 1 and 80),
   created_at     timestamptz not null default now(),
   unique (course_id, author_id)
 );
@@ -73,12 +72,32 @@ grant execute on function public.is_admin() to anon, authenticated;
 
 -- ============================================================================
 -- Email auth
--- Reviewers authenticate through email OTP. There is no hard domain lock.
--- Admin access is controlled through the public.admins whitelist.
+-- Reviewers authenticate through email OTP. Allowed domains are enforced in
+-- the database to match the app-layer validation. Admin access is controlled
+-- separately through the public.admins whitelist.
 -- ============================================================================
 
+create or replace function public.enforce_allowed_student_domain()
+returns trigger language plpgsql security definer
+set search_path = public, auth
+as $$
+begin
+  if new.email is null or new.email !~* '@(umail\.leidenuniv\.nl|students\.uu\.nl)$' then
+    raise exception 'Only approved university email addresses are allowed.'
+      using errcode = '22000';
+  end if;
+  return new;
+end;
+$$;
+
 drop trigger if exists enforce_leiden_domain_before_insert on auth.users;
+create trigger enforce_leiden_domain_before_insert
+  before insert on auth.users
+  for each row execute function public.enforce_allowed_student_domain();
 drop trigger if exists enforce_leiden_domain_before_update on auth.users;
+create trigger enforce_leiden_domain_before_update
+  before update of email on auth.users
+  for each row execute function public.enforce_allowed_student_domain();
 
 -- ============================================================================
 -- Views
@@ -87,8 +106,9 @@ drop trigger if exists enforce_leiden_domain_before_update on auth.users;
 
 create or replace view public.courses_with_stats as
 select c.id,
-       c.code,
+       c.slug,
        c.title,
+       c.location,
        c.description,
        c.studiegids_url,
        c.color,
@@ -96,15 +116,13 @@ select c.id,
        c.ec,
        c.created_at,
        coalesce(avg(r.rating), 0)::numeric(3, 2)         as avg_rating,
-       coalesce(avg(r.difficulty), 0)::numeric(3, 2)     as avg_difficulty,
-       coalesce(avg(r.workload_hours), 0)::numeric(4, 1) as avg_workload,
        count(r.id)                                       as review_count
 from public.courses c
 left join public.reviews r on r.course_id = c.id
 group by c.id;
 
 create or replace view public.reviews_public as
-select id, course_id, title, body, rating, difficulty, workload_hours, created_at
+select id, course_id, title, body, rating, created_at
 from public.reviews;
 
 grant select on public.courses_with_stats to anon, authenticated;

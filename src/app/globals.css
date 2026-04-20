@@ -2,46 +2,45 @@
 
 /*
  * CoschapReview
- * Palette: navy #001158 (primary), orange #F46E32 (accent),
- * soft neutrals for background and borders. Light mode only for v1.
+ * Palette based on the provided light mode colors.
  * Tailwind v4 uses color values directly (not HSL triplets).
  */
 
 :root {
-  --background: #ffffff;
-  --foreground: #0c1229;
+  --background: #f9fafa;
+  --foreground: #111618;
 
   --card: #ffffff;
-  --card-foreground: #0c1229;
+  --card-foreground: #111618;
 
   --popover: #ffffff;
-  --popover-foreground: #0c1229;
+  --popover-foreground: #111618;
 
-  --primary: #001158;
+  --primary: #5c778f;
   --primary-foreground: #ffffff;
 
-  --secondary: #f5f6f8;
-  --secondary-foreground: #0c1229;
+  --secondary: #f4f6f7;
+  --secondary-foreground: #111618;
 
-  --muted: #f5f6f8;
-  --muted-foreground: #64748b;
+  --muted: #f4f6f7;
+  --muted-foreground: #6b7280;
 
-  --accent: #f46e32;
+  --accent: #5c778f;
   --accent-foreground: #ffffff;
 
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
 
-  --border: #e5e7eb;
-  --input: #e5e7eb;
-  --ring: #0c2577;
+  --border: rgba(17, 22, 24, 0.1);
+  --input: rgba(17, 22, 24, 0.1);
+  --ring: #5c778f;
 
   --radius: 0.625rem;
 
-  --leiden-navy: #001158;
-  --leiden-navy-hover: #0c2577;
-  --leiden-orange: #f46e32;
-  --leiden-surface: #f5f6f8;
+  --brand-primary: #5c778f;
+  --brand-primary-hover: #5c778f;
+  --brand-accent: #5c778f;
+  --brand-surface: #f4f6f7;
 }
 
 @theme inline {
@@ -64,10 +63,10 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --color-leiden-navy: var(--leiden-navy);
-  --color-leiden-navy-hover: var(--leiden-navy-hover);
-  --color-leiden-orange: var(--leiden-orange);
-  --color-leiden-surface: var(--leiden-surface);
+  --color-leiden-navy: var(--brand-primary);
+  --color-leiden-navy-hover: var(--brand-primary-hover);
+  --color-leiden-orange: var(--brand-accent);
+  --color-leiden-surface: var(--brand-surface);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);

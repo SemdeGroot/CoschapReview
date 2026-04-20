@@ -19,7 +19,7 @@ const bitter = Bitter({
 export const metadata: Metadata = {
   title: "CoschapReview",
   description:
-    "Honest, anonymous reviews of pharmacy internships at hospital, policlinic, and public pharmacies.",
+    "Eerlijke, anonieme reviews van farmaciecoschappen bij ziekenhuis-, poliklinische en openbare apotheken.",
 };
 
 export default function RootLayout({
@@ -29,7 +29,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+      lang="nl"
       className={`${inter.variable} ${bitter.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-background text-foreground">

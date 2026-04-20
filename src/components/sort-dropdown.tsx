@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowUpDown } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
 
 import {
   Select,
@@ -14,31 +13,13 @@ import type { SortOption } from "@/lib/sort";
 
 type Props = {
   options: SortOption[];
-  defaultValue: string;
-  paramName?: string;
+  value: string;
+  onChange: (value: string) => void;
 };
 
-export function SortDropdown({
-  options,
-  defaultValue,
-  paramName = "sort",
-}: Props) {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const current = searchParams.get(paramName) ?? defaultValue;
-
-  function handleChange(value: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value === defaultValue) {
-      params.delete(paramName);
-    } else {
-      params.set(paramName, value);
-    }
-    router.replace(`?${params.toString()}`, { scroll: false });
-  }
-
+export function SortDropdown({ options, value, onChange }: Props) {
   return (
-    <Select value={current} onValueChange={handleChange}>
+    <Select value={value} onValueChange={onChange}>
       <SelectTrigger className="w-[220px]">
         <ArrowUpDown size={14} className="text-muted-foreground" />
         <SelectValue />
