@@ -1,13 +1,12 @@
 import { notFound, redirect } from "next/navigation";
 import Link from "next/link";
-import { Building2 } from "lucide-react";
 
 import { AdminLoginFlow } from "@/components/admin-login-flow";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export const metadata = { title: "Admin · CoschapReview" };
+export const metadata = { title: "Admin" };
 
 export default async function AdminLoginPage() {
   const supabase = await createSupabaseServerClient();
@@ -26,15 +25,9 @@ export default async function AdminLoginPage() {
       <header className="flex items-center justify-center px-4 py-6">
         <Link
           href="/"
-          className="flex items-center gap-2 font-semibold tracking-tight text-foreground"
+          className="font-semibold tracking-tight text-foreground"
         >
-          <span
-            className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground"
-            aria-hidden
-          >
-            <Building2 size={18} />
-          </span>
-          CoschapReview
+          Farmacoschap
         </Link>
       </header>
       <main className="flex flex-1 items-start justify-center px-4 pb-16">

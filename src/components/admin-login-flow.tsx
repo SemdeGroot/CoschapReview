@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, Mail, ShieldCheck } from "lucide-react";
+import { ArrowLeft, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -16,24 +16,30 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { EmailDomainField } from "@/components/email-domain-field";
 import { requestOtpAction } from "@/server-actions/auth";
 import { verifyAdminOtpAction } from "@/server-actions/admin";
-import { ALLOWED_EMAIL_DOMAIN_LABEL, ALLOWED_EMAIL_EXAMPLES } from "@/lib/email-domains";
+import {
+  ALLOWED_EMAIL_DOMAIN_LABEL,
+  DEFAULT_EMAIL_DOMAIN,
+  buildAllowedEmail,
+  type AllowedEmailDomain,
+} from "@/lib/email-domains";
 type Stage = "email" | "code";
 
 export function AdminLoginFlow() {
   const router = useRouter();
   const [stage, setStage] = useState<Stage>("email");
-  const [email, setEmail] = useState("");
+  const [emailLocalPart, setEmailLocalPart] = useState("");
+  const [emailDomain, setEmailDomain] = useState<AllowedEmailDomain>(DEFAULT_EMAIL_DOMAIN);
   const [code, setCode] = useState("");
   const [pending, startTransition] = useTransition();
+  const email = buildAllowedEmail(emailLocalPart, emailDomain);
 
   function onSendCode(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const normalised = email.trim().toLowerCase();
-    setEmail(normalised);
     startTransition(async () => {
-      const res = await requestOtpAction(normalised);
+      const res = await requestOtpAction(email);
       if (!res.ok) {
         toast.error(res.error);
         return;
@@ -64,10 +70,7 @@ export function AdminLoginFlow() {
   return (
     <Card className="shadow-sm">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-2xl">
-          <ShieldCheck size={20} className="text-primary" />
-          Admintoegang
-        </CardTitle>
+        <CardTitle className="text-2xl">Admintoegang</CardTitle>
         <CardDescription>
           {stage === "email"
             ? "Bevestig je e-mailadres om verder te gaan."
@@ -78,15 +81,11 @@ export function AdminLoginFlow() {
       {stage === "email" ? (
         <form onSubmit={onSendCode}>
           <CardContent className="space-y-2">
-            <Label htmlFor="email">E-mailadres</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              placeholder={ALLOWED_EMAIL_EXAMPLES[0]}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+            <EmailDomainField
+              localPart={emailLocalPart}
+              domain={emailDomain}
+              onLocalPartChange={setEmailLocalPart}
+              onDomainChange={setEmailDomain}
               disabled={pending}
             />
             <p className="text-xs text-muted-foreground">

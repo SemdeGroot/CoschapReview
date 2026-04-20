@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: RouteParams }) {
     .maybeSingle();
   if (!data) return { title: "Coschap niet gevonden" };
   return {
-    title: `${data.title} · CoschapReview`,
+    title: data.title,
   };
 }
 
@@ -195,16 +195,21 @@ async function fetchReviews(courseId: string): Promise<ReviewCardData[]> {
   const { data } = await supabase
     .from("reviews_public")
     .select("*")
-    .eq("course_id", courseId)
-    .order("created_at", { ascending: false });
+    .eq("course_id", courseId);
 
-  return (data ?? [])
-    .filter((r) => r.id && r.title && r.body && r.created_at)
+  const reviews = (data ?? [])
+    .filter((r) => r.id && r.title && r.body)
     .map((r) => ({
       id: r.id!,
       title: r.title!,
       body: r.body!,
       rating: Number(r.rating ?? 0),
-      created_at: r.created_at!,
     }));
+
+  for (let i = reviews.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [reviews[i], reviews[j]] = [reviews[j], reviews[i]];
+  }
+
+  return reviews;
 }

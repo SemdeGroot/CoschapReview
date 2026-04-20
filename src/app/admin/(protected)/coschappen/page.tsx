@@ -78,6 +78,7 @@ export default async function AdminCoursesPage() {
           <tbody>
             {courses.map((course) => {
               const specs = specsByCourse.get(course.id!) ?? [];
+              const deleteCourse = deleteCourseAction.bind(null, course.id!);
               return (
                 <tr
                   key={course.id}
@@ -139,7 +140,7 @@ export default async function AdminCoursesPage() {
                       <ConfirmDeleteButton
                         title={`"${course.title}" verwijderen?`}
                         description="Dit verwijdert het coschap en alle bijbehorende reviews definitief. Dit kan niet ongedaan worden gemaakt."
-                        action={async () => deleteCourseAction(course.id!)}
+                        action={deleteCourse}
                         successMessage="Coschap verwijderd."
                       />
                     </div>

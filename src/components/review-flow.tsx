@@ -3,7 +3,7 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, CheckCircle2, Mail } from "lucide-react";
+import { ArrowLeft, Mail } from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -17,10 +17,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { EmailDomainField } from "@/components/email-domain-field";
 import { RatingInput } from "@/components/rating-input";
 import { requestOtpAction, verifyOtpAction } from "@/server-actions/auth";
 import { submitReviewAction } from "@/server-actions/reviews";
-import { ALLOWED_EMAIL_DOMAIN_LABEL, ALLOWED_EMAIL_EXAMPLES } from "@/lib/email-domains";
+import {
+  ALLOWED_EMAIL_DOMAIN_LABEL,
+  DEFAULT_EMAIL_DOMAIN,
+  buildAllowedEmail,
+  getAllowedEmailDomain,
+  getEmailLocalPart,
+  type AllowedEmailDomain,
+} from "@/lib/email-domains";
 
 type Stage = "email" | "code" | "form";
 
@@ -32,7 +40,10 @@ type Props = {
 export function ReviewFlow({ course, initialEmail }: Props) {
   const router = useRouter();
   const [stage, setStage] = useState<Stage>(initialEmail ? "form" : "email");
-  const [email, setEmail] = useState(initialEmail ?? "");
+  const [emailLocalPart, setEmailLocalPart] = useState(getEmailLocalPart(initialEmail));
+  const [emailDomain, setEmailDomain] = useState<AllowedEmailDomain>(
+    getAllowedEmailDomain(initialEmail) ?? DEFAULT_EMAIL_DOMAIN,
+  );
   const [code, setCode] = useState("");
 
   const [title, setTitle] = useState("");
@@ -40,13 +51,12 @@ export function ReviewFlow({ course, initialEmail }: Props) {
   const [rating, setRating] = useState(0);
 
   const [pending, startTransition] = useTransition();
+  const email = buildAllowedEmail(emailLocalPart, emailDomain);
 
   function onSendCode(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    const normalised = email.trim().toLowerCase();
-    setEmail(normalised);
     startTransition(async () => {
-      const res = await requestOtpAction(normalised);
+      const res = await requestOtpAction(email);
       if (!res.ok) {
         toast.error(res.error);
         return;
@@ -109,15 +119,11 @@ export function ReviewFlow({ course, initialEmail }: Props) {
         </CardHeader>
         <form onSubmit={onSendCode}>
           <CardContent className="space-y-2">
-            <Label htmlFor="email">E-mailadres</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              placeholder={ALLOWED_EMAIL_EXAMPLES[0]}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+            <EmailDomainField
+              localPart={emailLocalPart}
+              domain={emailDomain}
+              onLocalPartChange={setEmailLocalPart}
+              onDomainChange={setEmailDomain}
               disabled={pending}
             />
             <p className="text-xs text-muted-foreground">
@@ -187,17 +193,10 @@ export function ReviewFlow({ course, initialEmail }: Props) {
   return (
     <Card className="shadow-sm">
       <CardHeader>
-        <div className="flex items-start justify-between gap-3">
-          <div>
-            <CardTitle className="text-2xl">Schrijf je review</CardTitle>
-            <CardDescription>
-              Je reviewt <span className="font-medium text-foreground">{course.title}</span>.
-            </CardDescription>
-          </div>
-          <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-border bg-secondary px-2 py-1 text-[11px] font-medium text-muted-foreground">
-            <CheckCircle2 size={12} className="text-accent" /> Bevestigd
-          </span>
-        </div>
+        <CardTitle className="text-2xl">Schrijf je review</CardTitle>
+        <CardDescription>
+          Je reviewt <span className="font-medium text-foreground">{course.title}</span>.
+        </CardDescription>
       </CardHeader>
       <form onSubmit={onSubmitReview}>
         <CardContent className="space-y-5">
@@ -231,6 +230,9 @@ export function ReviewFlow({ course, initialEmail }: Props) {
             />
             <p className="text-xs text-muted-foreground">
               {body.length} / 4000
+            </p>
+            <p className="text-xs text-muted-foreground">
+              Houd je review netjes, feitelijk en behulpzaam voor andere studenten. Onnodig kwetsende of ongepaste reviews kunnen worden verwijderd.
             </p>
           </div>
 

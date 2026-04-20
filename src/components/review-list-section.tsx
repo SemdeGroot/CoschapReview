@@ -41,12 +41,19 @@ export function ReviewListSection({ courseSlug, reviewCount, reviews }: Props) {
   return (
     <div className="order-2 lg:order-1">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-lg font-semibold text-foreground">
-          Reviews{" "}
-          <span className="ml-1 text-sm font-normal text-muted-foreground">
-            ({reviewCount})
-          </span>
-        </h2>
+        <div>
+          <h2 className="text-lg font-semibold text-foreground">
+            Reviews{" "}
+            <span className="ml-1 text-sm font-normal text-muted-foreground">
+              ({reviewCount})
+            </span>
+          </h2>
+          {reviews.length > 0 && (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Datums worden niet getoond om anonimiteit beter te beschermen. Reviews ouder dan 3 jaar worden verwijderd.
+            </p>
+          )}
+        </div>
         {reviews.length > 0 && (
           <SortDropdown options={REVIEW_SORT_OPTIONS} value={sort} onChange={setSort} />
         )}

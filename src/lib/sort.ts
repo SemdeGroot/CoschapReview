@@ -6,14 +6,15 @@ export type SortOption = {
 };
 
 export const COURSE_SORT_OPTIONS: SortOption[] = [
-  { value: "reviews.desc", label: "Meest besproken", column: "review_count", ascending: false },
-  { value: "reviews.asc", label: "Minst besproken", column: "review_count", ascending: true },
   { value: "rating.desc", label: "Hoogst beoordeeld", column: "avg_rating", ascending: false },
   { value: "rating.asc", label: "Laagst beoordeeld", column: "avg_rating", ascending: true },
+  { value: "reviews.desc", label: "Meest besproken", column: "review_count", ascending: false },
+  { value: "reviews.asc", label: "Minst besproken", column: "review_count", ascending: true },
   { value: "title.asc", label: "Naam A-Z", column: "title", ascending: true },
+  { value: "title.desc", label: "Naam Z-A", column: "title", ascending: false },
 ];
 
-export const DEFAULT_COURSE_SORT = "reviews.desc";
+export const DEFAULT_COURSE_SORT = "rating.desc";
 
 export function resolveCourseSort(value: string | undefined | null): SortOption {
   return (
@@ -23,13 +24,11 @@ export function resolveCourseSort(value: string | undefined | null): SortOption 
 }
 
 export const REVIEW_SORT_OPTIONS: SortOption[] = [
-  { value: "date.desc", label: "Nieuwste eerst", column: "created_at", ascending: false },
-  { value: "date.asc", label: "Oudste eerst", column: "created_at", ascending: true },
   { value: "rating.desc", label: "Hoogst beoordeeld", column: "rating", ascending: false },
   { value: "rating.asc", label: "Laagst beoordeeld", column: "rating", ascending: true },
 ];
 
-export const DEFAULT_REVIEW_SORT = "date.desc";
+export const DEFAULT_REVIEW_SORT = "rating.desc";
 
 export function resolveReviewSort(value: string | undefined | null): SortOption {
   return (

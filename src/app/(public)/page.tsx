@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowRight, Search, Star } from "lucide-react";
+import { ArrowRight, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { type CourseListItem } from "@/components/course-list";
@@ -14,16 +14,12 @@ export default async function LandingPage() {
     <>
       <section className="border-b border-border bg-gradient-to-b from-leiden-surface to-background">
         <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
-          <p className="mb-4 inline-flex items-center gap-2 rounded-full border border-border bg-background px-3 py-1 text-xs font-medium text-muted-foreground">
-            <Star size={14} className="text-accent" /> Anonieme ervaringen van farmaciestudenten
-          </p>
           <h1 className="max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
-            Kies je coschap met meer context dan alleen een naam.
+            Kies je coschap op basis van echte ervaringen.
           </h1>
-          <p className="mt-5 max-w-2xl text-lg leading-relaxed text-muted-foreground">
-            Lees eerlijke reviews over begeleiding en de dagelijkse praktijk in openbare,
-            ziekenhuis- en poliklinische apotheken, geschreven door studenten die er echt hebben
-            meegelopen.
+          <p className="mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
+            Begeleiding, sfeer, werkdruk -- door studenten die er zelf meegelopen hebben, in
+            openbare, ziekenhuis- en poliklinische apotheken.
           </p>
           <div className="mt-8 flex flex-wrap items-center gap-3">
             <Button

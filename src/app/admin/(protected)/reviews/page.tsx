@@ -64,7 +64,10 @@ export default async function AdminReviewsPage() {
         </div>
       ) : (
         <div className="space-y-3">
-          {rows.map((r) => (
+          {rows.map((r) => {
+            const deleteReview = deleteReviewAction.bind(null, r.id);
+
+            return (
             <article
               key={r.id}
               className="rounded-lg border border-border bg-card p-5"
@@ -99,7 +102,7 @@ export default async function AdminReviewsPage() {
                   <ConfirmDeleteButton
                     title="Deze review verwijderen?"
                     description="De review wordt definitief verwijderd. De reviewer kan daarna opnieuw een review plaatsen."
-                    action={async () => deleteReviewAction(r.id)}
+                    action={deleteReview}
                     successMessage="Review verwijderd."
                   />
                 </div>
@@ -118,7 +121,8 @@ export default async function AdminReviewsPage() {
                 </div>
               </dl>
             </article>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

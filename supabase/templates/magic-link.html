@@ -1,51 +1,91 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="nl">
-  <body style="margin:0;padding:0;background:#f9fafa;color:#111618;font-family:Inter,Arial,sans-serif;">
-    <div style="padding:32px 16px;">
-      <div style="max-width:560px;margin:0 auto;background:#ffffff;border:1px solid rgba(17,22,24,0.10);border-radius:24px;overflow:hidden;box-shadow:0 18px 60px rgba(17,22,24,0.08);">
-        <div style="padding:28px 32px;background:linear-gradient(135deg,#5C778F 0%,#4B97AD 100%);color:#ffffff;">
-          <div style="display:inline-block;padding:6px 10px;border:1px solid rgba(255,255,255,0.22);border-radius:999px;font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">
-            CoschapReview
-          </div>
-          <h1 style="margin:18px 0 8px;font-size:28px;line-height:1.15;font-family:Bitter,Georgia,serif;font-weight:700;">
-            Je verificatiecode
-          </h1>
-          <p style="margin:0;font-size:15px;line-height:1.6;color:rgba(255,255,255,0.88);">
-            Gebruik deze code om veilig verder te gaan met inloggen of het plaatsen van je review.
-          </p>
-        </div>
-
-        <div style="padding:32px;">
-          <p style="margin:0 0 18px;font-size:15px;line-height:1.7;">
-            Hallo,
-          </p>
-          <p style="margin:0 0 24px;font-size:15px;line-height:1.7;color:#4b5563;">
-            Er is zojuist een verificatiecode aangevraagd voor <strong>CoschapReview</strong>.
-            Vul onderstaande code in op de website om door te gaan.
-          </p>
-
-          <div style="margin:0 0 24px;padding:22px 20px;border-radius:20px;background:#f4f6f7;border:1px solid rgba(17,22,24,0.08);text-align:center;">
-            <div style="font-size:12px;text-transform:uppercase;letter-spacing:0.12em;color:#6b7280;margin-bottom:10px;">
-              Eenmalige code
-            </div>
-            <div style="font-size:32px;font-weight:700;letter-spacing:0.35em;color:#5C778F;font-variant-numeric:tabular-nums;">
-              {{ .Token }}
-            </div>
-          </div>
-
-          <div style="margin:0 0 24px;padding:16px 18px;border-radius:16px;background:rgba(92,119,143,0.12);border:1px solid rgba(92,119,143,0.18);color:#4b5563;font-size:14px;line-height:1.6;">
-            Deze code verloopt automatisch. Deel hem niet met anderen.
-          </div>
-
-          <p style="margin:0 0 8px;font-size:14px;line-height:1.7;color:#6b7280;">
-            Heb je deze aanvraag niet zelf gedaan? Dan kun je deze e-mail gewoon negeren.
-          </p>
-        </div>
-
-        <div style="padding:20px 32px;border-top:1px solid rgba(17,22,24,0.08);background:#f9fafa;font-size:12px;line-height:1.7;color:#6b7280;">
-          CoschapReview helpt farmaciestudenten met eerlijke, anonieme ervaringen over coschappen.
-        </div>
-      </div>
-    </div>
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Farmacoschap verificatiecode</title>
+  </head>
+  <body style="margin:0;padding:0;background-color:#eef3f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Inter,Arial,sans-serif;color:#111827;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="background-color:#eef3f8;padding:24px 16px;">
+      <tr>
+        <td align="center">
+          <table width="560" cellpadding="0" cellspacing="0" style="max-width:560px;width:100%;background-color:#ffffff;border-radius:24px;overflow:hidden;border:1px solid rgba(0,17,88,0.10);box-shadow:0 22px 54px rgba(0,17,88,0.12);">
+            <tr>
+              <td style="padding:0;background:linear-gradient(135deg,#001158 0%,#21408f 58%,#f46e32 160%);">
+                <table width="100%" cellpadding="0" cellspacing="0">
+                  <tr>
+                    <td style="padding:28px 32px 30px 32px;">
+                      <table cellpadding="0" cellspacing="0" style="margin:0 0 18px 0;">
+                        <tr>
+                          <td style="padding:0;">
+                            <span style="display:inline-block;padding:7px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.18);background-color:rgba(255,255,255,0.08);font-size:11px;font-weight:700;line-height:1;letter-spacing:0.12em;text-transform:uppercase;color:#ffffff;">
+                              Bevestig je e-mail
+                            </span>
+                          </td>
+                        </tr>
+                      </table>
+                      <h1 style="margin:0 0 12px 0;font-size:30px;line-height:1.15;font-weight:700;font-family:Georgia,'Times New Roman',serif;color:#ffffff;">
+                        Jouw verificatiecode
+                      </h1>
+                      <p style="margin:0;max-width:420px;font-size:15px;line-height:1.7;color:rgba(255,255,255,0.88);">
+                        Gebruik deze eenmalige code om verder te gaan met inloggen of het plaatsen van je coschapreview.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:36px 32px 18px 32px;">
+                <p style="margin:0 0 10px 0;font-size:15px;line-height:1.7;color:#374151;">
+                  Hallo,
+                </p>
+                <p style="margin:0 0 22px 0;font-size:15px;line-height:1.7;color:#374151;">
+                  Er is een verificatiecode aangevraagd voor <strong style="color:#111827;">Farmacoschap</strong>.
+                  Vul onderstaande code in op de website om verder te gaan.
+                </p>
+                <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px 0;">
+                  <tr>
+                    <td style="padding:24px 22px;border-radius:20px;background:linear-gradient(180deg,#f8fbff 0%,#f3f6fb 100%);border:1px solid rgba(0,17,88,0.10);text-align:center;">
+                      <p style="margin:0 0 10px 0;font-size:12px;font-weight:700;line-height:1;text-transform:uppercase;letter-spacing:0.12em;color:#6b7280;">
+                        Eenmalige code
+                      </p>
+                      <p style="margin:0;font-size:34px;font-weight:700;line-height:1.1;letter-spacing:0.32em;color:#001158;font-variant-numeric:tabular-nums;">
+                        {{ .Token }}
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+                <table width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 22px 0;">
+                  <tr>
+                    <td style="padding:16px 18px;border-radius:16px;background-color:#fff6f1;border:1px solid rgba(244,110,50,0.18);">
+                      <p style="margin:0;font-size:14px;line-height:1.7;color:#7c3d1f;">
+                        Deze code verloopt automatisch en mag niet met anderen gedeeld worden.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0 0 14px 0;font-size:14px;line-height:1.7;color:#4b5563;">
+                  Heb je deze code niet zelf aangevraagd? Dan kun je deze e-mail negeren.
+                </p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:0 32px 32px 32px;">
+                <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid rgba(17,24,39,0.08);">
+                  <tr>
+                    <td style="padding-top:20px;">
+                      <p style="margin:0;font-size:12px;line-height:1.7;color:#6b7280;">
+                        Farmacoschap helpt MSc-farmaciestudenten met eerlijke, anonieme ervaringen over coschappen.
+                      </p>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
   </body>
 </html>

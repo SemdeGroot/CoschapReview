@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
-import { ShieldCheck } from "lucide-react";
 
 import { AdminNav } from "@/components/admin-nav";
 import { AdminSignOut } from "@/components/admin-sign-out";
@@ -28,17 +27,11 @@ export default async function AdminLayout({
         <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
           <Link
             href="/admin/coschappen"
-            className="flex items-center gap-2 font-semibold tracking-tight"
+            className="font-semibold tracking-tight"
           >
-            <span
-              className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground"
-              aria-hidden
-            >
-              <ShieldCheck size={18} />
-            </span>
             Admin
             <span className="ml-2 hidden text-xs font-normal text-muted-foreground sm:inline">
-              CoschapReview
+              Farmacoschap
             </span>
           </Link>
           <div className="flex items-center gap-2">

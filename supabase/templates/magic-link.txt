@@ -1,0 +1,14 @@
+Farmacoschap verificatiecode
+
+Hallo,
+
+Er is een verificatiecode aangevraagd voor Farmacoschap.
+Gebruik de onderstaande eenmalige code om verder te gaan met inloggen of het plaatsen van je coschapreview:
+
+{{ .Token }}
+
+Deze code verloopt automatisch en mag niet met anderen gedeeld worden.
+
+Heb je deze code niet zelf aangevraagd? Dan kun je deze e-mail negeren.
+
+Farmacoschap helpt MSc-farmaciestudenten met eerlijke, anonieme ervaringen over coschappen.

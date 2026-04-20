@@ -5,14 +5,7 @@ export type ReviewCardData = {
   title: string;
   body: string;
   rating: number;
-  created_at: string;
 };
-
-const DATE_FMT = new Intl.DateTimeFormat("nl-NL", {
-  year: "numeric",
-  month: "short",
-  day: "numeric",
-});
 
 export function ReviewCard({ review }: { review: ReviewCardData }) {
   return (
@@ -22,9 +15,6 @@ export function ReviewCard({ review }: { review: ReviewCardData }) {
           <h3 className="text-base font-semibold leading-snug text-foreground">
             {review.title}
           </h3>
-          <p className="mt-0.5 text-xs text-muted-foreground">
-            Anonieme reviewer · {DATE_FMT.format(new Date(review.created_at))}
-          </p>
         </div>
         <Rating value={review.rating} size="md" />
       </header>

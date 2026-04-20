@@ -52,7 +52,15 @@ export function CourseBrowser({ courses }: Props) {
         <SearchInput className="w-full sm:w-72" value={query} onChange={setQuery} />
         <SortDropdown options={COURSE_SORT_OPTIONS} value={sort} onChange={setSort} />
       </div>
-      <CourseList courses={sortedCourses} />
+      <div
+        className={
+          sortedCourses.length > 8
+            ? "max-h-[560px] overflow-y-auto rounded-lg border border-border pr-1"
+            : undefined
+        }
+      >
+        <CourseList courses={sortedCourses} />
+      </div>
     </div>
   );
 }
