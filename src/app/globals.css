@@ -119,4 +119,11 @@
     font-family: var(--font-bitter), Georgia, serif;
     letter-spacing: -0.01em;
   }
+
+  /* Prevent iOS Safari from zooming on input focus (triggered when font-size < 16px) */
+  @media (max-width: 768px) {
+    input, select, textarea {
+      font-size: 16px !important;
+    }
+  }
 }
