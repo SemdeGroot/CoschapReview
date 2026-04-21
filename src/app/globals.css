@@ -114,6 +114,12 @@
     }
   }
 
+  @media (min-width: 1024px) {
+    .site-gutter {
+      padding-inline: 1.5rem;
+    }
+  }
+
   .animate-fade-up {
     animation: fade-up 0.3s ease-out both;
   }
