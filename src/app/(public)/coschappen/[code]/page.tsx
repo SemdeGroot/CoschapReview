@@ -9,6 +9,7 @@ import { type ReviewCardData } from "@/components/review-card";
 import { ReviewListSection } from "@/components/review-list-section";
 import { SpecializationBadge } from "@/components/specialization-badge";
 import { StatPill } from "@/components/stat-pill";
+import { getCourseIconColor } from "@/lib/colors";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 type RouteParams = Promise<{ code: string }>;
@@ -38,6 +39,7 @@ export default async function CourseDetailPage({
 
   const { course, ownReviewId } = detail;
   const reviews = await fetchReviews(course.id);
+  const iconColor = getCourseIconColor(course.color);
 
   return (
     <>
@@ -47,7 +49,7 @@ export default async function CourseDetailPage({
           background: `linear-gradient(180deg, ${course.color}08 0%, transparent 100%)`,
         }}
       >
-        <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+        <div className="site-gutter mx-auto w-full max-w-5xl py-10 sm:py-14">
           <Link
             href="/"
             className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
@@ -57,11 +59,11 @@ export default async function CourseDetailPage({
 
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
             <span
-              className="flex size-14 shrink-0 items-center justify-center rounded-xl text-white shadow-sm"
-              style={{ backgroundColor: course.color }}
+              className="flex size-14 shrink-0 items-center justify-center rounded-xl shadow-sm"
+              style={{ backgroundColor: course.color, color: iconColor }}
               aria-hidden
             >
-              <Icon name={getIconKeyByTypeCode(course.type_code)} size={28} className="text-white" />
+              <Icon name={getIconKeyByTypeCode(course.type_code)} size={28} className="text-current" />
             </span>
             <div className="min-w-0 flex-1">
               <h1 className="mt-1 text-3xl font-semibold leading-tight tracking-tight text-foreground sm:text-4xl">
@@ -99,7 +101,7 @@ export default async function CourseDetailPage({
         </div>
       </section>
 
-      <section className="animate-fade-up-d1 mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
+      <section className="site-gutter animate-fade-up-d1 mx-auto w-full max-w-5xl py-10">
         <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
           <ReviewListSection
             courseSlug={course.slug}

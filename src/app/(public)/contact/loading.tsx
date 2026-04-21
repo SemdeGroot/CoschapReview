@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ContactLoading() {
   return (
-    <div className="mx-auto w-full max-w-2xl px-4 py-12 sm:px-6">
+    <div className="site-gutter mx-auto w-full max-w-2xl py-12">
       <div className="mb-8">
         <Skeleton className="h-10 w-36" />
         <Skeleton className="mt-3 h-5 w-full max-w-xl" />

@@ -58,7 +58,7 @@ export function ReviewListSection({ courseSlug, reviewCount, reviews, ownReviewI
           </h2>
           {reviews.length > 0 && (
             <p className="mt-1 text-xs text-muted-foreground">
-              Datums worden niet getoond om anonimiteit beter te beschermen. Reviews ouder dan 3 jaar worden verwijderd.
+              Data worden niet getoond om anonimiteit beter te beschermen. Reviews ouder dan 3 jaar worden automatisch verwijderd.
             </p>
           )}
         </div>

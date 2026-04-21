@@ -44,7 +44,7 @@ export default async function AddReviewPage({ params }: { params: RouteParams })
     : { data: null };
 
   return (
-    <div className="animate-fade-up mx-auto w-full max-w-xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className="site-gutter animate-fade-up mx-auto w-full max-w-xl py-10 sm:py-14">
       <Link
         href={`/coschappen/${course.slug}`}
         className="mb-6 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"

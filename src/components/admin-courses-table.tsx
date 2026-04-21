@@ -10,6 +10,7 @@ import { ConfirmDeleteButton } from "@/components/confirm-delete-button";
 import { CourseEditModal } from "@/components/course-edit-modal";
 import { Icon } from "@/lib/icons/Icon";
 import { getIconKeyByTypeCode } from "@/lib/icons/registry";
+import { getCourseIconColor } from "@/lib/colors";
 import { SpecializationBadge } from "@/components/specialization-badge";
 import { deleteCourseAction } from "@/server-actions/admin";
 
@@ -83,15 +84,16 @@ export function AdminCoursesTable({ courses, allSpecs }: Props) {
               filtered.map((course) => {
                 const deleteCourse = deleteCourseAction.bind(null, course.id);
                 const iconKey = getIconKeyByTypeCode(course.type_code);
+                const iconColor = getCourseIconColor(course.color);
                 return (
                   <tr key={course.id} className="border-b border-border last:border-0">
                     <td className="px-4 py-3">
                       <div className="flex items-start gap-3">
                         <span
-                          className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md text-white"
-                          style={{ backgroundColor: course.color ?? "#001158" }}
+                          className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-md"
+                          style={{ backgroundColor: course.color ?? "#001158", color: iconColor }}
                         >
-                          <Icon name={iconKey} size={16} className="text-white" />
+                          <Icon name={iconKey} size={16} className="text-current" />
                         </span>
                         <div className="min-w-0">
                           <div className="font-medium text-foreground">{course.title}</div>

@@ -17,7 +17,7 @@ export default async function LandingPage() {
   return (
     <>
       <section className="border-b border-border bg-gradient-to-b from-leiden-surface to-background">
-        <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+        <div className="site-gutter mx-auto w-full max-w-6xl py-16 sm:py-24">
           <h1 className="animate-fade-up max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
             Kies je coschap op basis van echte ervaringen.
           </h1>
@@ -39,7 +39,7 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      <section id="coschappen" className="animate-fade-up-d3 mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+      <section id="coschappen" className="site-gutter animate-fade-up-d3 mx-auto w-full max-w-6xl py-10">
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-foreground">Alle coschappen</h2>

@@ -4,7 +4,7 @@ export default function PublicLoading() {
   return (
     <>
       <section className="border-b border-border bg-gradient-to-b from-leiden-surface to-background">
-        <div className="mx-auto w-full max-w-6xl px-4 py-16 sm:px-6 sm:py-24">
+        <div className="site-gutter mx-auto w-full max-w-6xl py-16 sm:py-24">
           <Skeleton className="h-12 w-full max-w-3xl" />
           <Skeleton className="mt-5 h-5 w-full max-w-xl" />
           <Skeleton className="mt-2 h-5 w-4/5 max-w-lg" />
@@ -12,7 +12,7 @@ export default function PublicLoading() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
+      <section className="site-gutter mx-auto w-full max-w-6xl py-10">
         <div className="mb-6">
           <Skeleton className="h-7 w-48" />
           <Skeleton className="mt-2 h-4 w-40" />

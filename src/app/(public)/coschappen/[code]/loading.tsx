@@ -4,7 +4,7 @@ export default function CourseDetailLoading() {
   return (
     <>
       <section className="border-b border-border bg-gradient-to-b from-leiden-surface/60 to-background">
-        <div className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6 sm:py-14">
+        <div className="site-gutter mx-auto w-full max-w-5xl py-10 sm:py-14">
           <Skeleton className="mb-6 h-4 w-32" />
 
           <div className="flex flex-col gap-5 sm:flex-row sm:items-start">
@@ -32,7 +32,7 @@ export default function CourseDetailLoading() {
         </div>
       </section>
 
-      <section className="mx-auto w-full max-w-5xl px-4 py-10 sm:px-6">
+      <section className="site-gutter mx-auto w-full max-w-5xl py-10">
         <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
           <div className="order-2 lg:order-1">
             <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

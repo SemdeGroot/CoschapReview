@@ -41,6 +41,7 @@
   --brand-primary-hover: #5c778f;
   --brand-accent: #5c778f;
   --brand-surface: #f4f6f7;
+  --site-shell-bottom-fill: color-mix(in srgb, #ffffff 96%, var(--primary) 4%);
   --site-shell-top-gradient: linear-gradient(
     180deg,
     #ffffff 0%,
@@ -51,8 +52,8 @@
   --site-shell-bottom-gradient: linear-gradient(
     180deg,
     color-mix(in srgb, #ffffff 94%, var(--primary) 6%) 0%,
-    color-mix(in srgb, #ffffff 98%, var(--primary) 2%) 42%,
-    #ffffff 100%
+    color-mix(in srgb, #ffffff 97%, var(--primary) 3%) 42%,
+    var(--site-shell-bottom-fill) 100%
   );
 }
 
@@ -93,7 +94,26 @@
   to { opacity: 1; }
 }
 
+@keyframes skeleton-shimmer {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(100%);
+  }
+}
+
 @layer utilities {
+  .site-gutter {
+    padding-inline: 1.125rem;
+  }
+
+  @media (min-width: 640px) {
+    .site-gutter {
+      padding-inline: 1.25rem;
+    }
+  }
+
   .animate-fade-up {
     animation: fade-up 0.3s ease-out both;
   }
@@ -113,6 +133,14 @@
 
   .site-shell-bottom {
     background: var(--site-shell-bottom-gradient);
+  }
+
+  .site-shell-bottom-fill {
+    background-color: var(--site-shell-bottom-fill);
+  }
+
+  .animate-skeleton-shimmer {
+    animation: skeleton-shimmer 1.4s ease-in-out infinite;
   }
 }
 
@@ -145,6 +173,12 @@
   @media (max-width: 768px) {
     input, select, textarea {
       font-size: 16px !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
     }
   }
 }

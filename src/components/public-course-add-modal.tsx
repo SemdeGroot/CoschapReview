@@ -248,7 +248,7 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
                 />
                 <p className="text-xs text-muted-foreground">
                   Er is een 6-cijferige code gestuurd naar{" "}
-                  <span className="font-medium text-foreground">{email}</span>.
+                  <span className="break-all font-medium text-foreground">{email}</span>.
                 </p>
               </div>
               <DialogFooter className="gap-2 sm:justify-between">

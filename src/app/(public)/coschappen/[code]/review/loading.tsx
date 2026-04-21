@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 
 export default function ReviewLoading() {
   return (
-    <div className="mx-auto w-full max-w-xl px-4 py-10 sm:px-6 sm:py-14">
+    <div className="site-gutter mx-auto w-full max-w-xl py-10 sm:py-14">
       <Skeleton className="mb-6 h-4 w-40" />
 
       <div className="rounded-xl border border-border bg-card p-5 shadow-sm sm:p-6">

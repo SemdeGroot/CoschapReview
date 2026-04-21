@@ -54,19 +54,25 @@ type Props = {
   allSpecs: Spec[];
   course: CourseData;
   initialEmail: string | null;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   triggerClassName?: string;
   triggerLabel?: string;
+  hideTrigger?: boolean;
 };
 
 export function PublicCourseEditModal({
   allSpecs,
   course,
   initialEmail,
+  open,
+  onOpenChange,
   triggerClassName,
   triggerLabel = "Bewerken",
+  hideTrigger = false,
 }: Props) {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [stage, setStage] = useState<Stage>(initialEmail ? "form" : "email");
   const [emailLocalPart, setEmailLocalPart] = useState(getEmailLocalPart(initialEmail));
@@ -82,6 +88,8 @@ export function PublicCourseEditModal({
   const [color, setColor] = useState(course.color);
   const [typeId, setTypeId] = useState<number>(course.type_id ?? allSpecs[0]?.id ?? 0);
   const email = buildAllowedEmail(emailLocalPart, emailDomain);
+  const isControlled = typeof open === "boolean";
+  const isOpen = isControlled ? open : internalOpen;
 
   function resetForm() {
     setStage(initialEmail ? "form" : "email");
@@ -98,7 +106,11 @@ export function PublicCourseEditModal({
   }
 
   function handleOpenChange(nextOpen: boolean) {
-    setOpen(nextOpen);
+    if (!isControlled) {
+      setInternalOpen(nextOpen);
+    }
+    onOpenChange?.(nextOpen);
+
     if (nextOpen) {
       resetForm();
     }
@@ -123,7 +135,7 @@ export function PublicCourseEditModal({
       }
 
       toast.success("Apotheek bijgewerkt.");
-      setOpen(false);
+      handleOpenChange(false);
       router.push(`/coschappen/${result.data.slug}`);
       router.refresh();
     });
@@ -165,18 +177,23 @@ export function PublicCourseEditModal({
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className={triggerClassName}>
-          <Pencil size={14} />
-          <span>{triggerLabel}</span>
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+      {!hideTrigger ? (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm" className={triggerClassName}>
+            <Pencil size={14} />
+            <span>{triggerLabel}</span>
+          </Button>
+        </DialogTrigger>
+      ) : null}
+      <DialogContent
+        className="max-h-[90vh] overflow-y-auto sm:max-w-lg"
+        onOpenAutoFocus={(event) => event.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Apotheek bewerken</DialogTitle>
           <DialogDescription>
-            Community edits zijn toegestaan. Controleer de gegevens zorgvuldig voordat je opslaat.
+            Pas de algemene gegevens aan van de coschapapotheek.
           </DialogDescription>
         </DialogHeader>
 
@@ -218,7 +235,7 @@ export function PublicCourseEditModal({
               />
               <p className="text-xs text-muted-foreground">
                 Er is een 6-cijferige code gestuurd naar{" "}
-                <span className="font-medium text-foreground">{email}</span>.
+                <span className="break-all font-medium text-foreground">{email}</span>.
               </p>
             </div>
             <DialogFooter className="gap-2 sm:justify-between">
@@ -351,7 +368,7 @@ export function PublicCourseEditModal({
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => setOpen(false)}
+                onClick={() => handleOpenChange(false)}
                 disabled={pending}
               >
                 Annuleren

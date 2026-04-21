@@ -24,7 +24,7 @@ export default async function AdminLayout({
   return (
     <div className="flex min-h-dvh flex-col bg-leiden-surface">
       <header className="border-b border-border bg-background">
-        <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
+        <div className="site-gutter mx-auto flex h-16 w-full max-w-6xl items-center justify-between gap-4">
           <Link
             href="/admin/coschappen"
             className="font-semibold tracking-tight"
@@ -42,10 +42,10 @@ export default async function AdminLayout({
           </div>
         </div>
       </header>
-      <div className="mx-auto w-full max-w-6xl px-4 pt-4 sm:px-6">
+      <div className="site-gutter mx-auto w-full max-w-6xl pt-4">
         <AdminNav />
       </div>
-      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 sm:px-6 animate-fade-up">
+      <main className="site-gutter mx-auto w-full max-w-6xl flex-1 py-6 animate-fade-up">
         {children}
       </main>
     </div>
