@@ -1,6 +1,5 @@
 "use server";
 
-import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ALLOWED_EMAIL_DOMAIN_LABEL, isAllowedEmailDomain } from "@/lib/email-domains";
@@ -63,6 +62,11 @@ export async function verifyOtpAction(
 
 export async function signOutAction() {
   const supabase = await createSupabaseServerClient();
-  await supabase.auth.signOut();
-  redirect("/");
+  const { error } = await supabase.auth.signOut();
+
+  if (error) {
+    return { ok: false, error: "We could not sign you out. Please try again." } satisfies ActionResult;
+  }
+
+  return { ok: true } satisfies ActionResult;
 }

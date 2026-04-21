@@ -1,10 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
-import { LogOut } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { PublicSignOutButton } from "@/components/public-sign-out-button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { signOutAction } from "@/server-actions/auth";
 
 export async function SiteHeader() {
   const supabase = await createSupabaseServerClient();
@@ -44,32 +43,12 @@ export async function SiteHeader() {
               <Link href="/#coschappen">Bekijk coschappen</Link>
             </Button>
             {user ? (
-              <form action={signOutAction}>
-                <Button
-                  type="submit"
-                  variant="ghost"
-                  size="sm"
-                  className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground"
-                >
-                  <LogOut size={14} />
-                  Uitloggen
-                </Button>
-              </form>
+              <PublicSignOutButton className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground" />
             ) : null}
           </div>
 
           {user ? (
-            <form action={signOutAction} className="sm:hidden">
-              <Button
-                type="submit"
-                variant="ghost"
-                size="sm"
-                className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground"
-              >
-                <LogOut size={14} />
-                Uitloggen
-              </Button>
-            </form>
+            <PublicSignOutButton className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground sm:hidden" />
           ) : null}
         </div>
       </div>
