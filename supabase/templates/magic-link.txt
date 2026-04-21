@@ -1,14 +1,7 @@
 Farmacoschap verificatiecode
 
-Hallo,
-
-Er is een verificatiecode aangevraagd voor Farmacoschap.
-Gebruik de onderstaande eenmalige code om verder te gaan met inloggen of het plaatsen van je coschapreview:
+Gebruik deze code om verder te gaan:
 
 {{ .Token }}
 
-Deze code verloopt automatisch en mag niet met anderen gedeeld worden.
-
-Heb je deze code niet zelf aangevraagd? Dan kun je deze e-mail negeren.
-
-Farmacoschap. Platform voor ervaringen over coschappen in de apotheek.
+Heb je deze code niet aangevraagd? Dan kun je deze e-mail negeren.
