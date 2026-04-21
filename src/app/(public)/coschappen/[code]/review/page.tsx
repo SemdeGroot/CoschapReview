@@ -35,6 +35,14 @@ export default async function AddReviewPage({ params }: { params: RouteParams })
     data: { user },
   } = await supabase.auth.getUser();
 
+  const { data: existingReview } = user
+    ? await supabase
+        .from("reviews")
+        .select("id, title, body, rating")
+        .eq("course_id", course.id)
+        .maybeSingle()
+    : { data: null };
+
   return (
     <div className="animate-fade-up mx-auto w-full max-w-xl px-4 py-10 sm:px-6 sm:py-14">
       <Link
@@ -46,6 +54,7 @@ export default async function AddReviewPage({ params }: { params: RouteParams })
       <ReviewFlow
         course={{ id: course.id, slug: course.slug, title: course.title }}
         initialEmail={user?.email ?? null}
+        initialReview={existingReview}
       />
     </div>
   );

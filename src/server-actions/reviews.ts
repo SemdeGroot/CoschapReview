@@ -16,6 +16,15 @@ export type ReviewSubmitResult =
   | { ok: true; redirectTo: string }
   | { ok: false; error: string };
 
+export type ReviewInput = z.infer<typeof reviewInputSchema>;
+
+export type ExistingReviewInput = {
+  id: string;
+  title: string;
+  body: string;
+  rating: number;
+};
+
 export async function submitReviewAction(
   input: z.input<typeof reviewInputSchema>,
 ): Promise<ReviewSubmitResult> {
@@ -55,7 +64,7 @@ export async function submitReviewAction(
     if (error.code === "23505") {
       return {
         ok: false,
-        error: "Je hebt dit coschap al beoordeeld. Vraag een admin om je bestaande review eerst te verwijderen.",
+        error: "Je hebt dit coschap al beoordeeld. Bewerk je bestaande review op de detailpagina.",
       };
     }
     return { ok: false, error: error.message };
@@ -63,5 +72,56 @@ export async function submitReviewAction(
 
   revalidatePath("/");
   revalidatePath(`/coschappen/${course.slug}`);
+  return { ok: true, redirectTo: `/coschappen/${course.slug}` };
+}
+
+export async function updateReviewAction(
+  input: z.input<typeof reviewInputSchema> & { reviewId: string },
+): Promise<ReviewSubmitResult> {
+  const parsed = reviewInputSchema.safeParse(input);
+  if (!parsed.success) {
+    return { ok: false, error: parsed.error.issues[0]?.message ?? "Ongeldige invoer." };
+  }
+
+  const reviewId = z.string().uuid().safeParse(input.reviewId);
+  if (!reviewId.success) {
+    return { ok: false, error: "Ongeldige review." };
+  }
+
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) {
+    return {
+      ok: false,
+      error: "Je sessie is verlopen. Bevestig je e-mailadres opnieuw.",
+    };
+  }
+
+  const { courseId, title, body, rating } = parsed.data;
+
+  const { data: course, error: courseError } = await supabase
+    .from("courses")
+    .select("slug")
+    .eq("id", courseId)
+    .maybeSingle();
+  if (courseError || !course) {
+    return { ok: false, error: "Coschap niet gevonden." };
+  }
+
+  const { error } = await supabase
+    .from("reviews")
+    .update({ title, body, rating })
+    .eq("id", reviewId.data)
+    .eq("course_id", courseId);
+
+  if (error) {
+    return { ok: false, error: error.message };
+  }
+
+  revalidatePath("/");
+  revalidatePath(`/coschappen/${course.slug}`);
+  revalidatePath(`/coschappen/${course.slug}/review`);
   return { ok: true, redirectTo: `/coschappen/${course.slug}` };
 }

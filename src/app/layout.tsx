@@ -20,6 +20,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
+  themeColor: "#aab8c5",
 };
 
 export const metadata: Metadata = {
@@ -64,7 +65,7 @@ export default function RootLayout({
       lang="nl"
       className={`${inter.variable} ${bitter.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground">
+      <body className="min-h-full flex flex-col bg-secondary text-foreground">
         {children}
         <Toaster richColors closeButton position="top-right" />
       </body>

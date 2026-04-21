@@ -14,7 +14,6 @@ function encode(data: Record<string, string>) {
 export function ContactForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [subject, setSubject] = useState("new-apotheek");
   const [message, setMessage] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [pending, startTransition] = useTransition();
@@ -26,7 +25,7 @@ export function ContactForm() {
         const res = await fetch("/", {
           method: "POST",
           headers: { "Content-Type": "application/x-www-form-urlencoded" },
-          body: encode({ "form-name": "contact", name, email, subject, message }),
+          body: encode({ "form-name": "contact", name, email, message }),
         });
         if (!res.ok) throw new Error();
         setStatus("success");
@@ -82,22 +81,6 @@ export function ContactForm() {
             disabled={pending}
           />
         </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="contact-subject">Onderwerp</Label>
-        <select
-          id="contact-subject"
-          name="subject"
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-          disabled={pending}
-          className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
-        >
-          <option value="new-apotheek">Apotheek toevoegen</option>
-          <option value="correction">Aanpassing doorgeven</option>
-          <option value="other">Overig</option>
-        </select>
       </div>
 
       <div className="space-y-2">

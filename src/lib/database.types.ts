@@ -227,6 +227,23 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: boolean
       }
+      find_course_duplicate_candidates: {
+        Args: {
+          input_location: string
+          input_title: string
+          match_limit?: number
+        }
+        Returns: {
+          combined_similarity: number
+          exact_duplicate: boolean
+          id: string
+          location: string
+          location_similarity: number
+          slug: string
+          title: string
+          title_similarity: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never

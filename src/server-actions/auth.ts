@@ -1,5 +1,6 @@
 "use server";
 
+import { redirect } from "next/navigation";
 import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { ALLOWED_EMAIL_DOMAIN_LABEL, isAllowedEmailDomain } from "@/lib/email-domains";
@@ -58,4 +59,10 @@ export async function verifyOtpAction(
   });
   if (error) return { ok: false, error: error.message };
   return { ok: true };
+}
+
+export async function signOutAction() {
+  const supabase = await createSupabaseServerClient();
+  await supabase.auth.signOut();
+  redirect("/");
 }

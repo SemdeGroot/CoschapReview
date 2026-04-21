@@ -36,7 +36,7 @@ export default async function CourseDetailPage({
   const detail = await fetchCourseDetail(code);
   if (!detail) notFound();
 
-  const { course } = detail;
+  const { course, ownReviewId } = detail;
   const reviews = await fetchReviews(course.id);
 
   return (
@@ -83,7 +83,7 @@ export default async function CourseDetailPage({
               className="w-full bg-accent text-accent-foreground hover:bg-accent/90 sm:w-auto sm:self-start"
             >
               <Link href={`/coschappen/${course.slug}/review`}>
-                <Pencil size={16} /> Review schrijven
+                <Pencil size={16} /> {ownReviewId ? "Review bewerken" : "Review schrijven"}
               </Link>
             </Button>
           </div>
@@ -105,6 +105,7 @@ export default async function CourseDetailPage({
             courseSlug={course.slug}
             reviewCount={course.review_count}
             reviews={reviews}
+            ownReviewId={ownReviewId}
           />
 
           <aside className="order-1 space-y-5 lg:order-2">
@@ -115,14 +116,16 @@ export default async function CourseDetailPage({
               <p className="mt-2 text-sm leading-relaxed text-foreground">
                 {course.description}
               </p>
-              <a
-                href={course.studiegids_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-              >
-                Website openen <ExternalLink size={12} />
-              </a>
+              {course.studiegids_url ? (
+                <a
+                  href={course.studiegids_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
+                >
+                  Website openen <ExternalLink size={12} />
+                </a>
+              ) : null}
             </div>
           </aside>
         </div>
@@ -133,13 +136,21 @@ export default async function CourseDetailPage({
 
 async function fetchCourseDetail(code: string) {
   const supabase = await createSupabaseServerClient();
-  const { data: course } = await supabase
-    .from("courses_with_stats")
-    .select("*")
-    .eq("slug", code)
-    .maybeSingle();
+  const [
+    { data: course },
+    {
+      data: { user },
+    },
+  ] = await Promise.all([
+    supabase.from("courses_with_stats").select("*").eq("slug", code).maybeSingle(),
+    supabase.auth.getUser(),
+  ]);
 
   if (!course?.id) return null;
+
+  const { data: ownReview } = user
+    ? await supabase.from("reviews").select("id").eq("course_id", course.id).maybeSingle()
+    : { data: null };
 
   return {
     course: {
@@ -148,13 +159,14 @@ async function fetchCourseDetail(code: string) {
       title: course.title ?? "Onbekende apotheek",
       location: course.location ?? "",
       description: course.description ?? "",
-      studiegids_url: course.studiegids_url ?? "#",
+      studiegids_url: course.studiegids_url ?? "",
       color: course.color ?? "#001158",
       type_code: course.type_code ?? null,
       type_name: course.type_name ?? null,
       avg_rating: Number(course.avg_rating ?? 0),
       review_count: Number(course.review_count ?? 0),
     },
+    ownReviewId: ownReview?.id ?? null,
   };
 }
 

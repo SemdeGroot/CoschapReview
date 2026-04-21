@@ -11,7 +11,7 @@ export default function ContactPage() {
       <div className="animate-fade-up mb-8">
         <h1 className="text-3xl font-semibold tracking-tight text-foreground">Contact</h1>
         <p className="mt-2 text-muted-foreground">
-          Staat een apotheek er niet bij, klopt er iets niet, of heb je een andere opmerking? Stuur het hieronder in.
+          Klopt er iets niet, of heb je een andere opmerking? Stuur het hieronder in.
         </p>
       </div>
       <div className="animate-fade-up-d1">

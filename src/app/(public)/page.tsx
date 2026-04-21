@@ -3,11 +3,16 @@ import { ArrowRight, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { type CourseListItem } from "@/components/course-list";
 import { CourseBrowser } from "@/components/course-browser";
+import { PublicCourseAddModal } from "@/components/public-course-add-modal";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getIconKeyByTypeCode } from "@/lib/icons/registry";
 
 export default async function LandingPage() {
-  const courses = await fetchCourses();
+  const [courses, allSpecs, initialEmail] = await Promise.all([
+    fetchCourses(),
+    fetchSpecializations(),
+    fetchInitialEmail(),
+  ]);
 
   return (
     <>
@@ -35,16 +40,17 @@ export default async function LandingPage() {
       </section>
 
       <section id="coschappen" className="animate-fade-up-d3 mx-auto w-full max-w-6xl px-4 py-10 sm:px-6">
-        <div className="mb-6">
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
           <div>
             <h2 className="text-xl font-semibold text-foreground">Alle coschappen</h2>
             <p className="text-sm text-muted-foreground">
               {courses.length} verschillende coschaplocaties
             </p>
           </div>
+          <PublicCourseAddModal allSpecs={allSpecs} initialEmail={initialEmail} />
         </div>
 
-        <CourseBrowser courses={courses} />
+        <CourseBrowser courses={courses} allSpecs={allSpecs} initialEmail={initialEmail} />
 
         {courses.length > 0 && (
           <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
@@ -75,12 +81,34 @@ async function fetchCourses(): Promise<CourseListItem[]> {
       slug: c.slug!,
       title: c.title!,
       location: c.location ?? "",
+      description: c.description ?? "",
+      studiegids_url: c.studiegids_url ?? "",
       color: c.color ?? "#001158",
       icon: getIconKeyByTypeCode(c.type_code),
+      type_id: c.type_id ?? null,
       avg_rating: Number(c.avg_rating ?? 0),
       review_count: Number(c.review_count ?? 0),
       specializations: c.type_code && c.type_name
         ? [{ code: c.type_code, name: c.type_name }]
         : [],
     }));
+}
+
+async function fetchSpecializations() {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("specializations")
+    .select("id, code, name")
+    .order("id", { ascending: true });
+
+  return data ?? [];
+}
+
+async function fetchInitialEmail() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return user?.email?.trim().toLowerCase() ?? null;
 }

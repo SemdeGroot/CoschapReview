@@ -20,7 +20,11 @@ import { Label } from "@/components/ui/label";
 import { EmailDomainField } from "@/components/email-domain-field";
 import { RatingInput } from "@/components/rating-input";
 import { requestOtpAction, verifyOtpAction } from "@/server-actions/auth";
-import { submitReviewAction } from "@/server-actions/reviews";
+import {
+  type ExistingReviewInput,
+  submitReviewAction,
+  updateReviewAction,
+} from "@/server-actions/reviews";
 import {
   ALLOWED_EMAIL_DOMAIN_LABEL,
   DEFAULT_EMAIL_DOMAIN,
@@ -35,9 +39,10 @@ type Stage = "email" | "code" | "form";
 type Props = {
   course: { id: string; slug: string; title: string };
   initialEmail: string | null;
+  initialReview?: ExistingReviewInput | null;
 };
 
-export function ReviewFlow({ course, initialEmail }: Props) {
+export function ReviewFlow({ course, initialEmail, initialReview }: Props) {
   const router = useRouter();
   const [stage, setStage] = useState<Stage>(initialEmail ? "form" : "email");
   const [emailLocalPart, setEmailLocalPart] = useState(getEmailLocalPart(initialEmail));
@@ -46,12 +51,13 @@ export function ReviewFlow({ course, initialEmail }: Props) {
   );
   const [code, setCode] = useState("");
 
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-  const [rating, setRating] = useState(0);
+  const [title, setTitle] = useState(initialReview?.title ?? "");
+  const [body, setBody] = useState(initialReview?.body ?? "");
+  const [rating, setRating] = useState(initialReview?.rating ?? 0);
 
   const [pending, startTransition] = useTransition();
   const email = buildAllowedEmail(emailLocalPart, emailDomain);
+  const isEditing = Boolean(initialReview);
 
   function onSendCode(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -91,17 +97,20 @@ export function ReviewFlow({ course, initialEmail }: Props) {
       return;
     }
     startTransition(async () => {
-      const res = await submitReviewAction({
+      const payload = {
         courseId: course.id,
         title: title.trim(),
         body: body.trim(),
         rating,
-      });
+      };
+      const res = isEditing
+        ? await updateReviewAction({ ...payload, reviewId: initialReview!.id })
+        : await submitReviewAction(payload);
       if (!res.ok) {
         toast.error(res.error);
         return;
       }
-      toast.success("Je review is geplaatst.");
+      toast.success(isEditing ? "Je review is bijgewerkt." : "Je review is geplaatst.");
       router.push(res.redirectTo);
       router.refresh();
     });
@@ -193,7 +202,9 @@ export function ReviewFlow({ course, initialEmail }: Props) {
   return (
     <Card className="shadow-sm">
       <CardHeader>
-        <CardTitle className="text-2xl">Schrijf je review</CardTitle>
+        <CardTitle className="text-2xl">
+          {isEditing ? "Bewerk je review" : "Schrijf je review"}
+        </CardTitle>
         <CardDescription>
           Je beoordeelt <span className="font-medium text-foreground">{course.title}</span>.
         </CardDescription>
@@ -250,7 +261,7 @@ export function ReviewFlow({ course, initialEmail }: Props) {
             className="w-full bg-accent text-accent-foreground hover:bg-accent/90"
             disabled={pending}
           >
-            {pending ? "Plaatsen..." : "Review plaatsen"}
+            {pending ? (isEditing ? "Opslaan..." : "Plaatsen...") : (isEditing ? "Review opslaan" : "Review plaatsen")}
           </Button>
           <Button asChild type="button" variant="ghost" size="sm" className="w-full">
             <Link href={`/coschappen/${course.slug}`}>Annuleren</Link>

@@ -13,9 +13,11 @@ import {
 
 type Props = {
   courses: CourseListItem[];
+  allSpecs: { id: number; code: string; name: string }[];
+  initialEmail: string | null;
 };
 
-export function CourseBrowser({ courses }: Props) {
+export function CourseBrowser({ courses, allSpecs, initialEmail }: Props) {
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState(DEFAULT_COURSE_SORT);
   const [sortVersion, setSortVersion] = useState(0);
@@ -71,7 +73,12 @@ export function CourseBrowser({ courses }: Props) {
             : undefined
         }
       >
-        <CourseList courses={sortedCourses} listKey={sortVersion} />
+        <CourseList
+          courses={sortedCourses}
+          allSpecs={allSpecs}
+          initialEmail={initialEmail}
+          listKey={sortVersion}
+        />
       </div>
     </div>
   );

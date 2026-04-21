@@ -17,9 +17,10 @@ type Props = {
   courseSlug: string;
   reviewCount: number;
   reviews: ReviewCardData[];
+  ownReviewId?: string | null;
 };
 
-export function ReviewListSection({ courseSlug, reviewCount, reviews }: Props) {
+export function ReviewListSection({ courseSlug, reviewCount, reviews, ownReviewId }: Props) {
   const [sort, setSort] = useState(DEFAULT_REVIEW_SORT);
   const [sortVersion, setSortVersion] = useState(0);
 
@@ -95,7 +96,13 @@ export function ReviewListSection({ courseSlug, reviewCount, reviews }: Props) {
                   : undefined
               }
             >
-              <ReviewCard review={review} />
+              <ReviewCard
+                review={{
+                  ...review,
+                  isOwnReview: review.id === ownReviewId,
+                  editHref: review.id === ownReviewId ? `/coschappen/${courseSlug}/review` : undefined,
+                }}
+              />
             </div>
           ))}
         </div>
