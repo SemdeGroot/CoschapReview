@@ -48,6 +48,7 @@ import {
   getEmailLocalPart,
   type AllowedEmailDomain,
 } from "@/lib/email-domains";
+import { DEFAULT_COURSE_COLOR } from "@/lib/colors";
 
 type Spec = { id: number; code: string; name: string };
 type Stage = "email" | "code" | "form";
@@ -81,6 +82,7 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
   const [location, setLocation] = useState("");
   const [description, setDescription] = useState("");
   const [website, setWebsite] = useState("");
+  const [color, setColor] = useState<string>(DEFAULT_COURSE_COLOR);
   const [typeId, setTypeId] = useState<number>(allSpecs[0]?.id ?? 0);
   const email = useMemo(
     () => buildAllowedEmail(emailLocalPart, emailDomain),
@@ -98,6 +100,7 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
     setLocation("");
     setDescription("");
     setWebsite("");
+    setColor(DEFAULT_COURSE_COLOR);
     setTypeId(allSpecs[0]?.id ?? 0);
   }
 
@@ -134,6 +137,7 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
         location,
         description,
         studiegids_url: website.trim(),
+        color,
         type_id: typeId,
       });
 
@@ -326,7 +330,11 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
                   onChange={(event) => setDescription(event.target.value)}
                   disabled={pending}
                   className="max-h-[280px] min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                  placeholder="Bijvoorbeeld: Openbare apotheek gespecialiseerd in baxterproductie."
                 />
+                <p className="text-xs text-muted-foreground">
+                  Beschrijf de apotheek feitelijk en objectief. Dit is nog geen review, maar basisinformatie over de locatie.
+                </p>
               </div>
 
               <div className="space-y-2">
@@ -342,6 +350,21 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
                 <p className="text-xs text-muted-foreground">
                   Optioneel. Laat leeg als je de website niet weet.
                 </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="public-course-color">Kleur</Label>
+                <div className="flex items-center gap-3">
+                  <input
+                    id="public-course-color"
+                    type="color"
+                    value={color}
+                    onChange={(event) => setColor(event.target.value)}
+                    disabled={pending}
+                    className="h-9 w-14 cursor-pointer rounded-md border border-input bg-background p-1 disabled:cursor-not-allowed disabled:opacity-50"
+                  />
+                  <span className="font-mono text-sm text-muted-foreground">{color}</span>
+                </div>
               </div>
 
               <p className="text-xs text-muted-foreground">

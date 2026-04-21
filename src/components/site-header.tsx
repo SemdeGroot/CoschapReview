@@ -13,11 +13,11 @@ export async function SiteHeader() {
   } = await supabase.auth.getUser();
 
   return (
-    <header className="site-shell sticky top-0 z-40 border-b border-black/6 pt-[env(safe-area-inset-top)] text-white shadow-[0_8px_24px_rgba(17,22,24,0.08)]">
-      <div className="mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4 sm:px-6">
+    <header className="site-shell-top sticky top-0 z-40 border-b border-black/6 shadow-[0_1px_0_rgba(17,22,24,0.04)]">
+      <div className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 pb-3 pt-[calc(env(safe-area-inset-top)+0.75rem)] sm:px-6">
         <Link
           href="/"
-          className="relative flex items-center gap-2 text-base font-semibold tracking-tight text-foreground transition-opacity hover:opacity-90"
+          className="flex items-center gap-2 text-base font-semibold tracking-tight text-foreground transition-opacity hover:opacity-90"
         >
           <Image
             src="/logo.png"
@@ -29,11 +29,16 @@ export async function SiteHeader() {
           />
           Farmacoschap
         </Link>
-        <div className="relative flex items-center gap-2">
+        <div className="flex items-center gap-2">
+          {user?.email ? (
+            <span className="hidden text-xs text-muted-foreground sm:inline">
+              {user.email}
+            </span>
+          ) : null}
           <Button
             asChild
             size="sm"
-            className="border border-white/50 bg-white/88 text-primary shadow-none hover:bg-white"
+            className="border border-primary/12 bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(92,119,143,0.18)] hover:bg-primary/92"
           >
             <Link href="/#coschappen">Bekijk coschappen</Link>
           </Button>
@@ -43,10 +48,10 @@ export async function SiteHeader() {
                 type="submit"
                 variant="ghost"
                 size="sm"
-                className="gap-2 border border-white/28 bg-white/8 text-white hover:bg-white/14 hover:text-white"
+                className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground"
               >
                 <LogOut size={14} />
-                Sign out
+                Uitloggen
               </Button>
             </form>
           ) : null}

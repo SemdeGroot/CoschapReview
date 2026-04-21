@@ -7,7 +7,7 @@ export function AdminSignOut() {
     <form action={adminSignOutAction}>
       <Button type="submit" variant="ghost" size="sm" className="gap-2">
         <LogOut size={14} />
-        Sign out
+        Uitloggen
       </Button>
     </form>
   );

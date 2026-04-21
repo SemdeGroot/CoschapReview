@@ -313,7 +313,11 @@ export function PublicCourseEditModal({
                 onChange={(event) => setDescription(event.target.value)}
                 disabled={pending}
                 className="max-h-[280px] min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm shadow-xs outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
+                placeholder="Bijvoorbeeld: Openbare apotheek gespecialiseerd in baxterproductie."
               />
+              <p className="text-xs text-muted-foreground">
+                Beschrijf de apotheek feitelijk en objectief. Dit is nog geen review, maar basisinformatie over de locatie.
+              </p>
             </div>
 
             <div className="space-y-2">

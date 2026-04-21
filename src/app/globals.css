@@ -41,14 +41,19 @@
   --brand-primary-hover: #5c778f;
   --brand-accent: #5c778f;
   --brand-surface: #f4f6f7;
-  --site-shell-gradient: linear-gradient(
-    90deg,
-    color-mix(in srgb, #ffffff 98%, var(--primary) 2%) 0%,
-    color-mix(in srgb, #ffffff 90%, var(--primary) 10%) 18%,
-    color-mix(in srgb, #ffffff 70%, var(--primary) 30%) 48%,
-    color-mix(in srgb, #ffffff 48%, var(--primary) 52%) 100%
+  --site-shell-top-gradient: linear-gradient(
+    180deg,
+    #ffffff 0%,
+    color-mix(in srgb, #ffffff 98%, var(--primary) 2%) 14%,
+    color-mix(in srgb, #ffffff 95%, var(--primary) 5%) 46%,
+    color-mix(in srgb, #ffffff 91%, var(--primary) 9%) 100%
   );
-  --site-chrome-color: #aab8c5;
+  --site-shell-bottom-gradient: linear-gradient(
+    180deg,
+    color-mix(in srgb, #ffffff 94%, var(--primary) 6%) 0%,
+    color-mix(in srgb, #ffffff 98%, var(--primary) 2%) 42%,
+    #ffffff 100%
+  );
 }
 
 @theme inline {
@@ -102,8 +107,12 @@
     animation: fade-up 0.3s 0.15s ease-out both;
   }
 
-  .site-shell {
-    background: var(--site-shell-gradient);
+  .site-shell-top {
+    background: var(--site-shell-top-gradient);
+  }
+
+  .site-shell-bottom {
+    background: var(--site-shell-bottom-gradient);
   }
 }
 

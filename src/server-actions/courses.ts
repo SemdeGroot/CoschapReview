@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
-import { DEFAULT_COURSE_COLOR } from "@/lib/colors";
 import { courseInputSchema, type CourseInput } from "@/lib/course-input";
 import { buildCourseSlugBase } from "@/lib/course-submission";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -20,6 +19,7 @@ const duplicateCheckSchema = z.object({
 const publicCourseSchema = duplicateCheckSchema.extend({
   description: z.string().trim().min(10, "Beschrijving is te kort.").max(2000, "Beschrijving is te lang."),
   studiegids_url: z.union([z.literal(""), z.string().trim().url("Vul een geldige website-URL in.")]),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Ongeldige kleurcode."),
   type_id: z.number().int().min(1, "Selecteer een type apotheek."),
 });
 
@@ -124,7 +124,7 @@ export async function createPublicCourseAction(
       location: parsed.data.location,
       description: parsed.data.description,
       studiegids_url: parsed.data.studiegids_url,
-      color: DEFAULT_COURSE_COLOR,
+      color: parsed.data.color,
       type_id: parsed.data.type_id,
     })
     .select("slug")
