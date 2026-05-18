@@ -1,64 +1,103 @@
+import { Suspense } from "react";
 import { ArrowRight, Search } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { type CourseListItem } from "@/components/course-list";
+import { CourseBrowserSkeleton } from "@/components/course-browser-skeleton";
 import { CourseBrowser } from "@/components/course-browser";
 import { PublicCourseAddModal } from "@/components/public-course-add-modal";
+import { Skeleton } from "@/components/ui/skeleton";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { getIconKeyByTypeCode } from "@/lib/icons/registry";
 
-export default async function LandingPage() {
-  const [courses, allSpecs, initialEmail] = await Promise.all([
+export default function LandingPage() {
+  return (
+    <>
+      <HeroSection />
+      <Suspense fallback={<CourseSectionSkeleton />}>
+        <CourseSection />
+      </Suspense>
+    </>
+  );
+}
+
+function HeroSection() {
+  return (
+    <section className="border-b border-border bg-gradient-to-b from-leiden-surface to-background">
+      <div className="site-gutter mx-auto w-full max-w-6xl py-16 sm:py-24">
+        <h1 className="animate-fade-up max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
+          Kies je coschap op basis van echte ervaringen.
+        </h1>
+        <p className="animate-fade-up-d1 mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
+          Beoordelingen door studenten die zelf meegelopen hebben in
+          openbare, ziekenhuis- en poliklinische apotheken.
+        </p>
+        <div className="animate-fade-up-d2 mt-8 flex flex-wrap items-center gap-3">
+          <Button
+            asChild
+            size="lg"
+            className="bg-accent text-accent-foreground hover:bg-accent/90"
+          >
+            <a href="#coschappen">
+              Bekijk coschappen <ArrowRight size={16} />
+            </a>
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+async function CourseSection() {
+  const [courses, allSpecs] = await Promise.all([
     fetchCourses(),
     fetchSpecializations(),
-    fetchInitialEmail(),
   ]);
 
   return (
-    <>
-      <section className="border-b border-border bg-gradient-to-b from-leiden-surface to-background">
-        <div className="site-gutter mx-auto w-full max-w-6xl py-16 sm:py-24">
-          <h1 className="animate-fade-up max-w-3xl text-4xl font-semibold leading-[1.1] tracking-tight text-foreground sm:text-5xl">
-            Kies je coschap op basis van echte ervaringen.
-          </h1>
-          <p className="animate-fade-up-d1 mt-5 max-w-xl text-lg leading-relaxed text-muted-foreground">
-            Beoordelingen door studenten die zelf meegelopen hebben in
-            openbare, ziekenhuis- en poliklinische apotheken.
+    <section id="coschappen" className="site-gutter animate-fade-up-d3 mx-auto w-full max-w-6xl py-10">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h2 className="text-xl font-semibold text-foreground">Alle coschappen</h2>
+          <p className="text-sm text-muted-foreground">
+            {courses.length} verschillende coschaplocaties
           </p>
-          <div className="animate-fade-up-d2 mt-8 flex flex-wrap items-center gap-3">
-            <Button
-              asChild
-              size="lg"
-              className="bg-accent text-accent-foreground hover:bg-accent/90"
-            >
-              <a href="#coschappen">
-                Bekijk coschappen <ArrowRight size={16} />
-              </a>
-            </Button>
-          </div>
         </div>
-      </section>
+        <Suspense fallback={<Skeleton className="h-10 w-full sm:w-44" />}>
+          <PublicCourseAddButton allSpecs={allSpecs} />
+        </Suspense>
+      </div>
 
-      <section id="coschappen" className="site-gutter animate-fade-up-d3 mx-auto w-full max-w-6xl py-10">
-        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-          <div>
-            <h2 className="text-xl font-semibold text-foreground">Alle coschappen</h2>
-            <p className="text-sm text-muted-foreground">
-              {courses.length} verschillende coschaplocaties
-            </p>
-          </div>
-          <PublicCourseAddModal allSpecs={allSpecs} initialEmail={initialEmail} />
-        </div>
+      <CourseBrowser courses={courses} allSpecs={allSpecs} initialEmail={null} />
 
-        <CourseBrowser courses={courses} allSpecs={allSpecs} initialEmail={initialEmail} />
+      {courses.length > 0 && (
+        <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
+          <Search size={12} /> Open een coschap om reviews te lezen of zelf een ervaring te delen.
+        </p>
+      )}
+    </section>
+  );
+}
 
-        {courses.length > 0 && (
-          <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
-            <Search size={12} /> Open een coschap om reviews te lezen of zelf een ervaring te delen.
-          </p>
-        )}
-      </section>
-    </>
+async function PublicCourseAddButton({
+  allSpecs,
+}: {
+  allSpecs: { id: number; code: string; name: string }[];
+}) {
+  const initialEmail = await fetchInitialEmail();
+
+  return <PublicCourseAddModal allSpecs={allSpecs} initialEmail={initialEmail} />;
+}
+
+function CourseSectionSkeleton() {
+  return (
+    <section id="coschappen" className="site-gutter mx-auto w-full max-w-6xl py-10">
+      <div className="mb-6">
+        <Skeleton className="h-7 w-48" />
+        <Skeleton className="mt-2 h-4 w-40" />
+      </div>
+      <CourseBrowserSkeleton />
+    </section>
   );
 }
 

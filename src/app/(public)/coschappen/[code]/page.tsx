@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cache, Suspense } from "react";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, Pencil } from "lucide-react";
 
@@ -7,6 +8,7 @@ import { Icon } from "@/lib/icons/Icon";
 import { getIconKeyByTypeCode } from "@/lib/icons/registry";
 import { type ReviewCardData } from "@/components/review-card";
 import { ReviewListSection } from "@/components/review-list-section";
+import { ReviewListSkeleton } from "@/components/review-list-skeleton";
 import { SpecializationBadge } from "@/components/specialization-badge";
 import { StatPill } from "@/components/stat-pill";
 import { getCourseIconColor } from "@/lib/colors";
@@ -37,8 +39,7 @@ export default async function CourseDetailPage({
   const detail = await fetchCourseDetail(code);
   if (!detail) notFound();
 
-  const { course, ownReviewId } = detail;
-  const reviews = await fetchReviews(course.id);
+  const { course } = detail;
   const iconColor = getCourseIconColor(course.color);
 
   return (
@@ -79,15 +80,9 @@ export default async function CourseDetailPage({
                 )}
               </div>
             </div>
-            <Button
-              asChild
-              size="lg"
-              className="w-full bg-accent text-accent-foreground hover:bg-accent/90 sm:w-auto sm:self-start"
-            >
-              <Link href={`/coschappen/${course.slug}/review`}>
-                <Pencil size={16} /> {ownReviewId ? "Review bewerken" : "Review schrijven"}
-              </Link>
-            </Button>
+            <Suspense fallback={<ReviewCtaButton courseSlug={course.slug} ownReviewId={null} />}>
+              <ReviewCtaButtonWithState courseId={course.id} courseSlug={course.slug} />
+            </Suspense>
           </div>
 
           <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-4 rounded-lg border border-border bg-card p-5 sm:gap-x-6">
@@ -103,12 +98,13 @@ export default async function CourseDetailPage({
 
       <section className="site-gutter animate-fade-up-d1 mx-auto w-full max-w-5xl py-10">
         <div className="grid gap-8 lg:grid-cols-[2fr_1fr]">
-          <ReviewListSection
-            courseSlug={course.slug}
-            reviewCount={course.review_count}
-            reviews={reviews}
-            ownReviewId={ownReviewId}
-          />
+          <Suspense fallback={<ReviewListSkeleton />}>
+            <ReviewsContent
+              courseId={course.id}
+              courseSlug={course.slug}
+              reviewCount={course.review_count}
+            />
+          </Suspense>
 
           <aside className="order-1 space-y-5 lg:order-2">
             <div className="rounded-lg border border-border bg-card p-5">
@@ -136,23 +132,71 @@ export default async function CourseDetailPage({
   );
 }
 
-async function fetchCourseDetail(code: string) {
-  const supabase = await createSupabaseServerClient();
-  const [
-    { data: course },
-    {
-      data: { user },
-    },
-  ] = await Promise.all([
-    supabase.from("courses_with_stats").select("*").eq("slug", code).maybeSingle(),
-    supabase.auth.getUser(),
+async function ReviewCtaButtonWithState({
+  courseId,
+  courseSlug,
+}: {
+  courseId: string;
+  courseSlug: string;
+}) {
+  const ownReviewId = await fetchOwnReviewId(courseId);
+
+  return <ReviewCtaButton courseSlug={courseSlug} ownReviewId={ownReviewId} />;
+}
+
+function ReviewCtaButton({
+  courseSlug,
+  ownReviewId,
+}: {
+  courseSlug: string;
+  ownReviewId: string | null;
+}) {
+  return (
+    <Button
+      asChild
+      size="lg"
+      className="w-full bg-accent text-accent-foreground hover:bg-accent/90 sm:w-auto sm:self-start"
+    >
+      <Link href={`/coschappen/${courseSlug}/review`}>
+        <Pencil size={16} /> {ownReviewId ? "Review bewerken" : "Review schrijven"}
+      </Link>
+    </Button>
+  );
+}
+
+async function ReviewsContent({
+  courseId,
+  courseSlug,
+  reviewCount,
+}: {
+  courseId: string;
+  courseSlug: string;
+  reviewCount: number;
+}) {
+  const [reviews, ownReviewId] = await Promise.all([
+    fetchReviews(courseId),
+    fetchOwnReviewId(courseId),
   ]);
 
-  if (!course?.id) return null;
+  return (
+    <ReviewListSection
+      courseSlug={courseSlug}
+      reviewCount={reviewCount}
+      reviews={reviews}
+      ownReviewId={ownReviewId}
+    />
+  );
+}
 
-  const { data: ownReview } = user
-    ? await supabase.from("reviews").select("id").eq("course_id", course.id).maybeSingle()
-    : { data: null };
+async function fetchCourseDetail(code: string) {
+  const supabase = await createSupabaseServerClient();
+  const { data: course } = await supabase
+    .from("courses_with_stats")
+    .select("*")
+    .eq("slug", code)
+    .maybeSingle();
+
+  if (!course?.id) return null;
 
   return {
     course: {
@@ -168,9 +212,25 @@ async function fetchCourseDetail(code: string) {
       avg_rating: Number(course.avg_rating ?? 0),
       review_count: Number(course.review_count ?? 0),
     },
-    ownReviewId: ownReview?.id ?? null,
   };
 }
+
+const fetchOwnReviewId = cache(async (courseId: string) => {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return null;
+
+  const { data: ownReview } = await supabase
+    .from("reviews")
+    .select("id")
+    .eq("course_id", courseId)
+    .maybeSingle();
+
+  return ownReview?.id ?? null;
+});
 
 async function fetchReviews(courseId: string): Promise<ReviewCardData[]> {
   const supabase = await createSupabaseServerClient();

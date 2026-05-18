@@ -6,15 +6,19 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminIndex() {
   const supabase = await createSupabaseServerClient();
+  const [userResult, adminResult] = await Promise.all([
+    supabase.auth.getUser(),
+    supabase.rpc("is_admin"),
+  ]);
   const {
     data: { user },
-  } = await supabase.auth.getUser();
+  } = userResult;
 
   if (!user) {
     redirect("/admin/login");
   }
 
-  const { data: isAdmin } = await supabase.rpc("is_admin");
+  const { data: isAdmin } = adminResult;
   if (!isAdmin) {
     notFound();
   }

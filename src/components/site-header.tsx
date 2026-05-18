@@ -1,16 +1,12 @@
 import Link from "next/link";
 import Image from "next/image";
+import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
 import { PublicSignOutButton } from "@/components/public-sign-out-button";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
-export async function SiteHeader() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
+export function SiteHeader() {
   return (
     <header className="site-shell-top sticky top-0 z-40 border-b border-black/6 shadow-[0_1px_0_rgba(17,22,24,0.04)]">
       <div className="site-gutter mx-auto flex w-full max-w-6xl items-center justify-between pb-3 pt-[calc(env(safe-area-inset-top)+0.75rem)]">
@@ -28,30 +24,60 @@ export async function SiteHeader() {
           />
           Farmacoschap
         </Link>
-        <div className="flex items-center gap-2">
-          <div className="hidden items-center gap-2 sm:flex">
-            {user?.email ? (
-              <span className="text-xs text-muted-foreground">
-                {user.email}
-              </span>
-            ) : null}
-            <Button
-              asChild
-              size="sm"
-              className="border border-primary/12 bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(92,119,143,0.18)] hover:bg-primary/92"
-            >
-              <Link href="/#coschappen">Bekijk coschappen</Link>
-            </Button>
-            {user ? (
-              <PublicSignOutButton className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground" />
-            ) : null}
-          </div>
 
-          {user ? (
-            <PublicSignOutButton className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground sm:hidden" />
-          ) : null}
-        </div>
+        <Suspense fallback={<HeaderActionsFallback />}>
+          <HeaderAccountActions />
+        </Suspense>
       </div>
     </header>
+  );
+}
+
+async function HeaderAccountActions() {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  return (
+    <div className="flex items-center gap-2">
+      <div className="hidden items-center gap-2 sm:flex">
+        {user?.email ? (
+          <span className="text-xs text-muted-foreground">
+            {user.email}
+          </span>
+        ) : null}
+        <Button
+          asChild
+          size="sm"
+          className="border border-primary/12 bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(92,119,143,0.18)] hover:bg-primary/92"
+        >
+          <Link href="/#coschappen">Bekijk coschappen</Link>
+        </Button>
+        {user ? (
+          <PublicSignOutButton className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground" />
+        ) : null}
+      </div>
+
+      {user ? (
+        <PublicSignOutButton className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground sm:hidden" />
+      ) : null}
+    </div>
+  );
+}
+
+function HeaderActionsFallback() {
+  return (
+    <div className="flex items-center gap-2">
+      <div className="hidden items-center gap-2 sm:flex">
+        <Button
+          asChild
+          size="sm"
+          className="border border-primary/12 bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(92,119,143,0.18)] hover:bg-primary/92"
+        >
+          <Link href="/#coschappen">Bekijk coschappen</Link>
+        </Button>
+      </div>
+    </div>
   );
 }
