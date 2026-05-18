@@ -92,9 +92,12 @@ async function PublicCourseAddButton({
 function CourseSectionSkeleton() {
   return (
     <section id="coschappen" className="site-gutter mx-auto w-full max-w-6xl py-10">
-      <div className="mb-6">
-        <Skeleton className="h-7 w-48" />
-        <Skeleton className="mt-2 h-4 w-40" />
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <Skeleton className="h-7 w-48" />
+          <Skeleton className="mt-2 h-4 w-40" />
+        </div>
+        <Skeleton className="h-10 w-full sm:w-44" />
       </div>
       <CourseBrowserSkeleton />
     </section>

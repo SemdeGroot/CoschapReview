@@ -40,23 +40,23 @@ async function HeaderAccountActions() {
   } = await supabase.auth.getUser();
 
   return (
-    <div className="flex items-center gap-2">
-      <div className="hidden items-center gap-2 sm:flex">
+    <div className="flex min-h-8 min-w-28 animate-fade-up items-center justify-end gap-2 sm:min-w-[28rem]">
+      <div className="hidden w-full items-center justify-end gap-2 sm:flex">
         {user?.email ? (
-          <span className="text-xs text-muted-foreground">
+          <span className="max-w-52 truncate text-xs text-muted-foreground">
             {user.email}
           </span>
+        ) : null}
+        {user ? (
+          <PublicSignOutButton className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground" />
         ) : null}
         <Button
           asChild
           size="sm"
-          className="border border-primary/12 bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(92,119,143,0.18)] hover:bg-primary/92"
+          className="w-36 border border-primary/12 bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(92,119,143,0.18)] hover:bg-primary/92"
         >
           <Link href="/#coschappen">Bekijk coschappen</Link>
         </Button>
-        {user ? (
-          <PublicSignOutButton className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground" />
-        ) : null}
       </div>
 
       {user ? (
@@ -68,12 +68,12 @@ async function HeaderAccountActions() {
 
 function HeaderActionsFallback() {
   return (
-    <div className="flex items-center gap-2">
-      <div className="hidden items-center gap-2 sm:flex">
+    <div className="flex min-h-8 min-w-28 items-center justify-end gap-2 sm:min-w-[28rem]">
+      <div className="hidden w-full items-center justify-end gap-2 sm:flex">
         <Button
           asChild
           size="sm"
-          className="border border-primary/12 bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(92,119,143,0.18)] hover:bg-primary/92"
+          className="w-36 border border-primary/12 bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(92,119,143,0.18)] hover:bg-primary/92"
         >
           <Link href="/#coschappen">Bekijk coschappen</Link>
         </Button>

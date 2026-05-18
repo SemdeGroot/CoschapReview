@@ -198,7 +198,7 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
     <>
       <Dialog open={open} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>
-          <Button className="bg-accent text-accent-foreground hover:bg-accent/90">
+          <Button className="w-full bg-accent text-accent-foreground hover:bg-accent/90 sm:w-44">
             <Plus size={14} /> Apotheek toevoegen
           </Button>
         </DialogTrigger>
