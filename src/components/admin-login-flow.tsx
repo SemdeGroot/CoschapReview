@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Mail } from "lucide-react";
 import { toast } from "sonner";
@@ -29,12 +29,24 @@ type Stage = "email" | "code";
 
 export function AdminLoginFlow() {
   const router = useRouter();
+  const flowRef = useRef<HTMLDivElement>(null);
   const [stage, setStage] = useState<Stage>("email");
   const [emailLocalPart, setEmailLocalPart] = useState("");
   const [emailDomain, setEmailDomain] = useState<AllowedEmailDomain>(DEFAULT_EMAIL_DOMAIN);
   const [code, setCode] = useState("");
   const [pending, startTransition] = useTransition();
   const email = buildAllowedEmail(emailLocalPart, emailDomain);
+
+  useEffect(() => {
+    const firstField = flowRef.current?.querySelector<HTMLElement>(
+      [
+        "input:not([type='hidden']):not([disabled])",
+        "[role='combobox']:not([aria-disabled='true'])",
+      ].join(","),
+    );
+
+    firstField?.focus();
+  }, [stage]);
 
   function onSendCode(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -68,7 +80,7 @@ export function AdminLoginFlow() {
   }
 
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-sm" ref={flowRef}>
       <CardHeader>
         <CardTitle className="text-2xl">Admintoegang</CardTitle>
         <CardDescription>

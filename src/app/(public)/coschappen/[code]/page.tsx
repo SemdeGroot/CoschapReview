@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { cache, Suspense } from "react";
+import { Suspense } from "react";
 import { notFound } from "next/navigation";
 import { ArrowLeft, ExternalLink, Pencil } from "lucide-react";
 
@@ -80,9 +80,7 @@ export default async function CourseDetailPage({
                 )}
               </div>
             </div>
-            <Suspense fallback={<ReviewCtaButton courseSlug={course.slug} ownReviewId={null} />}>
-              <ReviewCtaButtonWithState courseId={course.id} courseSlug={course.slug} />
-            </Suspense>
+            <ReviewCtaButton courseSlug={course.slug} />
           </div>
 
           <div className="mt-8 grid grid-cols-2 gap-x-3 gap-y-4 rounded-lg border border-border bg-card p-5 sm:gap-x-6">
@@ -132,24 +130,10 @@ export default async function CourseDetailPage({
   );
 }
 
-async function ReviewCtaButtonWithState({
-  courseId,
-  courseSlug,
-}: {
-  courseId: string;
-  courseSlug: string;
-}) {
-  const ownReviewId = await fetchOwnReviewId(courseId);
-
-  return <ReviewCtaButton courseSlug={courseSlug} ownReviewId={ownReviewId} />;
-}
-
 function ReviewCtaButton({
   courseSlug,
-  ownReviewId,
 }: {
   courseSlug: string;
-  ownReviewId: string | null;
 }) {
   return (
     <Button
@@ -158,7 +142,7 @@ function ReviewCtaButton({
       className="w-full bg-accent text-accent-foreground hover:bg-accent/90 sm:w-auto sm:self-start"
     >
       <Link href={`/coschappen/${courseSlug}/review`}>
-        <Pencil size={16} /> {ownReviewId ? "Review bewerken" : "Review schrijven"}
+        <Pencil size={16} /> Review schrijven
       </Link>
     </Button>
   );
@@ -173,17 +157,13 @@ async function ReviewsContent({
   courseSlug: string;
   reviewCount: number;
 }) {
-  const [reviews, ownReviewId] = await Promise.all([
-    fetchReviews(courseId),
-    fetchOwnReviewId(courseId),
-  ]);
+  const reviews = await fetchReviews(courseId);
 
   return (
     <ReviewListSection
       courseSlug={courseSlug}
       reviewCount={reviewCount}
       reviews={reviews}
-      ownReviewId={ownReviewId}
     />
   );
 }
@@ -214,23 +194,6 @@ async function fetchCourseDetail(code: string) {
     },
   };
 }
-
-const fetchOwnReviewId = cache(async (courseId: string) => {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) return null;
-
-  const { data: ownReview } = await supabase
-    .from("reviews")
-    .select("id")
-    .eq("course_id", courseId)
-    .maybeSingle();
-
-  return ownReview?.id ?? null;
-});
 
 async function fetchReviews(courseId: string): Promise<ReviewCardData[]> {
   const supabase = await createSupabaseServerClient();

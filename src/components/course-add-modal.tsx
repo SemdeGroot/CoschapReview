@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useLayoutEffect, useRef, useState, useTransition } from "react";
 import { Plus } from "lucide-react";
 import { toast } from "sonner";
 
@@ -31,6 +31,7 @@ type Props = {
 };
 
 export function CourseAddModal({ allSpecs }: Props) {
+  const formRef = useRef<HTMLFormElement>(null);
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -56,6 +57,20 @@ export function CourseAddModal({ allSpecs }: Props) {
     setOpen(value);
     if (!value) resetForm();
   }
+
+  useLayoutEffect(() => {
+    if (!open) return;
+
+    const firstField = formRef.current?.querySelector<HTMLElement>(
+      [
+        "input:not([type='hidden']):not([disabled])",
+        "textarea:not([disabled])",
+        "[role='combobox']:not([aria-disabled='true'])",
+      ].join(","),
+    );
+
+    firstField?.focus();
+  }, [open]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -85,11 +100,14 @@ export function CourseAddModal({ allSpecs }: Props) {
           <Plus size={14} /> Apotheek toevoegen
         </Button>
       </DialogTrigger>
-      <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+      <DialogContent
+        className="max-h-[90vh] overflow-y-auto sm:max-w-lg"
+        onOpenAutoFocus={(event) => event.preventDefault()}
+      >
         <DialogHeader>
           <DialogTitle>Apotheek toevoegen</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="add-slug">Code (URL)</Label>
             <Input

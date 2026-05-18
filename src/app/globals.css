@@ -163,6 +163,14 @@
     border-color: var(--border);
   }
 
+  :where(a[href], button, [role="button"], [role="combobox"], [role="menuitem"], summary, label, select, input[type="checkbox"], input[type="radio"], input[type="color"], input[type="file"]) {
+    cursor: pointer;
+  }
+
+  :where(button:disabled, [aria-disabled="true"], input:disabled, select:disabled, textarea:disabled) {
+    cursor: not-allowed;
+  }
+
   body {
     background: var(--background);
     color: var(--foreground);

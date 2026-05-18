@@ -20,6 +20,23 @@ const verifySchema = z.object({
 
 export type ActionResult = { ok: true } | { ok: false; error: string };
 
+export async function getCurrentUserEmailAction(): Promise<
+  { ok: true; email: string | null } | { ok: false; error: string }
+> {
+  const supabase = await createSupabaseServerClient();
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
+  if (error) {
+    console.error("Failed to check current user session", error);
+    return { ok: true, email: null };
+  }
+
+  return { ok: true, email: user?.email?.trim().toLowerCase() ?? null };
+}
+
 /**
  * Send a 6-digit OTP to an email address. Session is not created yet; call
  * verifyOtpAction with the returned code. Session cookies are httpOnly.
@@ -65,7 +82,7 @@ export async function signOutAction() {
   const { error } = await supabase.auth.signOut();
 
   if (error) {
-    return { ok: false, error: "We could not sign you out. Please try again." } satisfies ActionResult;
+    return { ok: false, error: "Uitloggen is niet gelukt. Probeer het opnieuw." } satisfies ActionResult;
   }
 
   return { ok: true } satisfies ActionResult;

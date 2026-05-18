@@ -1,10 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Suspense } from "react";
 
 import { Button } from "@/components/ui/button";
-import { PublicSignOutButton } from "@/components/public-sign-out-button";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export function SiteHeader() {
   return (
@@ -25,59 +22,14 @@ export function SiteHeader() {
           Farmacoschap
         </Link>
 
-        <Suspense fallback={<HeaderActionsFallback />}>
-          <HeaderAccountActions />
-        </Suspense>
+        <Button
+          asChild
+          size="sm"
+          className="w-36 border border-primary/12 bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(92,119,143,0.18)] hover:bg-primary/92"
+        >
+          <Link href="/#coschappen">Bekijk coschappen</Link>
+        </Button>
       </div>
     </header>
-  );
-}
-
-async function HeaderAccountActions() {
-  const supabase = await createSupabaseServerClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  return (
-    <div className="flex min-h-8 min-w-28 animate-fade-up items-center justify-end gap-2 sm:min-w-[28rem]">
-      <div className="hidden w-full items-center justify-end gap-2 sm:flex">
-        {user?.email ? (
-          <span className="max-w-52 truncate text-xs text-muted-foreground">
-            {user.email}
-          </span>
-        ) : null}
-        {user ? (
-          <PublicSignOutButton className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground" />
-        ) : null}
-        <Button
-          asChild
-          size="sm"
-          className="w-36 border border-primary/12 bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(92,119,143,0.18)] hover:bg-primary/92"
-        >
-          <Link href="/#coschappen">Bekijk coschappen</Link>
-        </Button>
-      </div>
-
-      {user ? (
-        <PublicSignOutButton className="gap-2 border border-black/8 bg-white/62 text-foreground shadow-none hover:bg-white/88 hover:text-foreground sm:hidden" />
-      ) : null}
-    </div>
-  );
-}
-
-function HeaderActionsFallback() {
-  return (
-    <div className="flex min-h-8 min-w-28 items-center justify-end gap-2 sm:min-w-[28rem]">
-      <div className="hidden w-full items-center justify-end gap-2 sm:flex">
-        <Button
-          asChild
-          size="sm"
-          className="w-36 border border-primary/12 bg-primary text-primary-foreground shadow-[0_10px_20px_rgba(92,119,143,0.18)] hover:bg-primary/92"
-        >
-          <Link href="/#coschappen">Bekijk coschappen</Link>
-        </Button>
-      </div>
-    </div>
   );
 }

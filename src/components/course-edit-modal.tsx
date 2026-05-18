@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useTransition } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, useTransition } from "react";
 import { Pencil } from "lucide-react";
 import { toast } from "sonner";
 
@@ -43,6 +43,7 @@ type Props = {
 };
 
 export function CourseEditModal({ course, allSpecs }: Props) {
+  const formRef = useRef<HTMLFormElement>(null);
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
 
@@ -64,6 +65,20 @@ export function CourseEditModal({ course, allSpecs }: Props) {
     setColor(course.color);
     setTypeId(course.type_id ?? allSpecs[0]?.id ?? 0);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  useLayoutEffect(() => {
+    if (!open) return;
+
+    const firstField = formRef.current?.querySelector<HTMLElement>(
+      [
+        "input:not([type='hidden']):not([disabled])",
+        "textarea:not([disabled])",
+        "[role='combobox']:not([aria-disabled='true'])",
+      ].join(","),
+    );
+
+    firstField?.focus();
   }, [open]);
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -102,7 +117,7 @@ export function CourseEditModal({ course, allSpecs }: Props) {
         <DialogHeader>
           <DialogTitle>Apotheek bewerken</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="edit-slug">Code (URL)</Label>
             <Input

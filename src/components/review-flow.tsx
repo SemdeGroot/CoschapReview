@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, Mail } from "lucide-react";
@@ -44,6 +44,7 @@ type Props = {
 
 export function ReviewFlow({ course, initialEmail, initialReview }: Props) {
   const router = useRouter();
+  const flowRef = useRef<HTMLDivElement>(null);
   const [stage, setStage] = useState<Stage>(initialEmail ? "form" : "email");
   const [emailLocalPart, setEmailLocalPart] = useState(getEmailLocalPart(initialEmail));
   const [emailDomain, setEmailDomain] = useState<AllowedEmailDomain>(
@@ -58,6 +59,19 @@ export function ReviewFlow({ course, initialEmail, initialReview }: Props) {
   const [pending, startTransition] = useTransition();
   const email = buildAllowedEmail(emailLocalPart, emailDomain);
   const isEditing = Boolean(initialReview);
+
+  useEffect(() => {
+    const firstField = flowRef.current?.querySelector<HTMLElement>(
+      [
+        "input:not([type='hidden']):not([disabled])",
+        "textarea:not([disabled])",
+        "[role='combobox']:not([aria-disabled='true'])",
+        "button:not([disabled])",
+      ].join(","),
+    );
+
+    firstField?.focus();
+  }, [stage]);
 
   function onSendCode(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -118,7 +132,7 @@ export function ReviewFlow({ course, initialEmail, initialReview }: Props) {
 
   if (stage === "email") {
     return (
-      <Card className="shadow-sm">
+      <Card className="shadow-sm" ref={flowRef}>
         <CardHeader>
           <CardTitle className="text-2xl">Bevestig je e-mailadres</CardTitle>
           <CardDescription>
@@ -151,7 +165,7 @@ export function ReviewFlow({ course, initialEmail, initialReview }: Props) {
 
   if (stage === "code") {
     return (
-      <Card className="shadow-sm">
+      <Card className="shadow-sm" ref={flowRef}>
         <CardHeader>
           <CardTitle className="text-2xl">Vul je code in</CardTitle>
           <CardDescription>
@@ -200,7 +214,7 @@ export function ReviewFlow({ course, initialEmail, initialReview }: Props) {
   }
 
   return (
-    <Card className="shadow-sm">
+    <Card className="shadow-sm" ref={flowRef}>
       <CardHeader>
         <CardTitle className="text-2xl">
           {isEditing ? "Bewerk je review" : "Schrijf je review"}

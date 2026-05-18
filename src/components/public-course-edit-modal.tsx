@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useLayoutEffect, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Mail, Pencil } from "lucide-react";
 import { toast } from "sonner";
@@ -72,6 +72,7 @@ export function PublicCourseEditModal({
   hideTrigger = false,
 }: Props) {
   const router = useRouter();
+  const stageContentRef = useRef<HTMLDivElement>(null);
   const [internalOpen, setInternalOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [stage, setStage] = useState<Stage>(initialEmail ? "form" : "email");
@@ -90,6 +91,20 @@ export function PublicCourseEditModal({
   const email = buildAllowedEmail(emailLocalPart, emailDomain);
   const isControlled = typeof open === "boolean";
   const isOpen = isControlled ? open : internalOpen;
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+
+    const firstField = stageContentRef.current?.querySelector<HTMLElement>(
+      [
+        "input:not([type='hidden']):not([disabled])",
+        "textarea:not([disabled])",
+        "[role='combobox']:not([aria-disabled='true'])",
+      ].join(","),
+    );
+
+    firstField?.focus();
+  }, [isOpen, stage]);
 
   function resetForm() {
     setStage(initialEmail ? "form" : "email");
@@ -197,8 +212,9 @@ export function PublicCourseEditModal({
           </DialogDescription>
         </DialogHeader>
 
-        {stage === "email" ? (
-          <form onSubmit={onSendCode} className="space-y-4">
+        <div ref={stageContentRef}>
+          {stage === "email" ? (
+            <form onSubmit={onSendCode} className="space-y-4">
             <EmailDomainField
               localPart={emailLocalPart}
               domain={emailDomain}
@@ -214,11 +230,11 @@ export function PublicCourseEditModal({
                 <Mail size={16} /> {pending ? "Versturen..." : "Code versturen"}
               </Button>
             </DialogFooter>
-          </form>
-        ) : null}
+            </form>
+          ) : null}
 
-        {stage === "code" ? (
-          <form onSubmit={onVerifyCode} className="space-y-4">
+          {stage === "code" ? (
+            <form onSubmit={onVerifyCode} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="course-edit-code">Verificatiecode</Label>
               <Input
@@ -254,11 +270,11 @@ export function PublicCourseEditModal({
                 {pending ? "Controleren..." : "Bevestigen"}
               </Button>
             </DialogFooter>
-          </form>
-        ) : null}
+            </form>
+          ) : null}
 
-        {stage === "form" ? (
-          <form onSubmit={handleSubmit} className="space-y-4">
+          {stage === "form" ? (
+            <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="public-edit-slug">Code (URL)</Label>
               <Input
@@ -381,8 +397,9 @@ export function PublicCourseEditModal({
                 {pending ? "Opslaan..." : "Opslaan"}
               </Button>
             </DialogFooter>
-          </form>
-        ) : null}
+            </form>
+          ) : null}
+        </div>
       </DialogContent>
     </Dialog>
   );

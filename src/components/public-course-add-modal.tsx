@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, Mail, Plus } from "lucide-react";
 import { toast } from "sonner";
@@ -28,6 +28,7 @@ import {
 import { EmailDomainField } from "@/components/email-domain-field";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -35,7 +36,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { requestOtpAction, verifyOtpAction } from "@/server-actions/auth";
+import {
+  getCurrentUserEmailAction,
+  requestOtpAction,
+  verifyOtpAction,
+} from "@/server-actions/auth";
 import {
   createPublicCourseAction,
   findCourseDuplicateCandidatesAction,
@@ -51,7 +56,7 @@ import {
 import { DEFAULT_COURSE_COLOR } from "@/lib/colors";
 
 type Spec = { id: number; code: string; name: string };
-type Stage = "email" | "code" | "form";
+type Stage = "loading" | "email" | "code" | "form";
 
 type DuplicateCandidate = {
   id: string;
@@ -63,19 +68,21 @@ type DuplicateCandidate = {
 
 type Props = {
   allSpecs: Spec[];
-  initialEmail: string | null;
+  initialEmail?: string | null;
 };
 
-export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
+export function PublicCourseAddModal({ allSpecs, initialEmail = null }: Props) {
   const router = useRouter();
+  const stageContentRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [pending, startTransition] = useTransition();
   const [warningOpen, setWarningOpen] = useState(false);
   const [warningMatches, setWarningMatches] = useState<DuplicateCandidate[]>([]);
+  const [currentEmail, setCurrentEmail] = useState(initialEmail);
   const [stage, setStage] = useState<Stage>(initialEmail ? "form" : "email");
-  const [emailLocalPart, setEmailLocalPart] = useState(getEmailLocalPart(initialEmail));
+  const [emailLocalPart, setEmailLocalPart] = useState(getEmailLocalPart(currentEmail));
   const [emailDomain, setEmailDomain] = useState<AllowedEmailDomain>(
-    getAllowedEmailDomain(initialEmail) ?? DEFAULT_EMAIL_DOMAIN,
+    getAllowedEmailDomain(currentEmail) ?? DEFAULT_EMAIL_DOMAIN,
   );
   const [code, setCode] = useState("");
   const [title, setTitle] = useState("");
@@ -89,9 +96,24 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
     [emailDomain, emailLocalPart],
   );
 
+  useLayoutEffect(() => {
+    if (!open || stage === "loading") return;
+
+    const firstField = stageContentRef.current?.querySelector<HTMLElement>(
+      [
+        "input:not([type='hidden']):not([disabled])",
+        "textarea:not([disabled])",
+        "[role='combobox']:not([aria-disabled='true'])",
+      ].join(","),
+    );
+
+    firstField?.focus();
+  }, [open, stage]);
+
   function resetForm() {
     setWarningOpen(false);
     setWarningMatches([]);
+    setCurrentEmail(initialEmail);
     setStage(initialEmail ? "form" : "email");
     setEmailLocalPart(getEmailLocalPart(initialEmail));
     setEmailDomain(getAllowedEmailDomain(initialEmail) ?? DEFAULT_EMAIL_DOMAIN);
@@ -108,7 +130,23 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
     setOpen(nextOpen);
     if (!nextOpen) {
       resetForm();
+      return;
     }
+
+    setStage("loading");
+    startTransition(async () => {
+      const result = await getCurrentUserEmailAction();
+      if (!result.ok) {
+        toast.error(result.error);
+        setStage("email");
+        return;
+      }
+
+      setCurrentEmail(result.email);
+      setEmailLocalPart(getEmailLocalPart(result.email));
+      setEmailDomain(getAllowedEmailDomain(result.email) ?? DEFAULT_EMAIL_DOMAIN);
+      setStage(result.email ? "form" : "email");
+    });
   }
 
   function submitCourse(force = false) {
@@ -184,6 +222,7 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
       }
 
       toast.success("E-mailadres bevestigd.");
+      setCurrentEmail(email);
       setStage("form");
       router.refresh();
     });
@@ -202,7 +241,10 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
             <Plus size={14} /> Apotheek toevoegen
           </Button>
         </DialogTrigger>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
+        <DialogContent
+          className="max-h-[90vh] overflow-y-auto sm:max-w-lg"
+          onOpenAutoFocus={(event) => event.preventDefault()}
+        >
           <DialogHeader>
             <DialogTitle>Apotheek toevoegen</DialogTitle>
             <DialogDescription>
@@ -210,80 +252,89 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
             </DialogDescription>
           </DialogHeader>
 
-          {stage === "email" ? (
-            <form onSubmit={onSendCode} className="space-y-4">
-              <EmailDomainField
-                localPart={emailLocalPart}
-                domain={emailDomain}
-                onLocalPartChange={setEmailLocalPart}
-                onDomainChange={setEmailDomain}
-                disabled={pending}
-              />
-              <p className="text-xs text-muted-foreground">
-                Toegestane domeinen: {ALLOWED_EMAIL_DOMAIN_LABEL}
-              </p>
-              <DialogFooter>
-                <Button type="submit" className="w-full" disabled={pending}>
-                  <Mail size={16} /> {pending ? "Versturen..." : "Code versturen"}
-                </Button>
-              </DialogFooter>
-            </form>
-          ) : null}
+          <div ref={stageContentRef}>
+            {stage === "loading" ? (
+              <div className="space-y-3 py-2">
+                <Skeleton className="h-4 w-48" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : null}
 
-          {stage === "code" ? (
-            <form onSubmit={onVerifyCode} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="course-add-code">Verificatiecode</Label>
-                <Input
-                  id="course-add-code"
-                  inputMode="numeric"
-                  autoComplete="one-time-code"
-                  maxLength={6}
-                  pattern="[0-9]*"
-                  placeholder="123456"
-                  value={code}
-                  onChange={(event) => setCode(event.target.value)}
+            {stage === "email" ? (
+              <form onSubmit={onSendCode} className="space-y-4">
+                <EmailDomainField
+                  localPart={emailLocalPart}
+                  domain={emailDomain}
+                  onLocalPartChange={setEmailLocalPart}
+                  onDomainChange={setEmailDomain}
                   disabled={pending}
-                  className="text-center font-mono tracking-[0.4em]"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Er is een 6-cijferige code gestuurd naar{" "}
-                  <span className="break-all font-medium text-foreground">{email}</span>.
+                  Toegestane domeinen: {ALLOWED_EMAIL_DOMAIN_LABEL}
                 </p>
-              </div>
-              <DialogFooter className="gap-2 sm:justify-between">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => {
-                    setStage("email");
-                    setCode("");
-                  }}
-                  disabled={pending}
-                >
-                  <ArrowLeft size={14} /> Ander e-mailadres gebruiken
-                </Button>
-                <Button type="submit" disabled={pending}>
-                  {pending ? "Controleren..." : "Bevestigen"}
-                </Button>
-              </DialogFooter>
-            </form>
-          ) : null}
+                <DialogFooter>
+                  <Button type="submit" className="w-full" disabled={pending}>
+                    <Mail size={16} /> {pending ? "Versturen..." : "Code versturen"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            ) : null}
 
-          {stage === "form" ? (
-            <form onSubmit={onSubmit} className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="public-course-title">Naam</Label>
-                <Input
-                  id="public-course-title"
-                  required
-                  minLength={2}
-                  maxLength={120}
-                  value={title}
-                  onChange={(event) => setTitle(event.target.value)}
-                  disabled={pending}
-                />
-              </div>
+            {stage === "code" ? (
+              <form onSubmit={onVerifyCode} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="course-add-code">Verificatiecode</Label>
+                  <Input
+                    id="course-add-code"
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={6}
+                    pattern="[0-9]*"
+                    placeholder="123456"
+                    value={code}
+                    onChange={(event) => setCode(event.target.value)}
+                    disabled={pending}
+                    className="text-center font-mono tracking-[0.4em]"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Er is een 6-cijferige code gestuurd naar{" "}
+                    <span className="break-all font-medium text-foreground">{email}</span>.
+                  </p>
+                </div>
+                <DialogFooter className="gap-2 sm:justify-between">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    onClick={() => {
+                      setStage("email");
+                      setCode("");
+                    }}
+                    disabled={pending}
+                  >
+                    <ArrowLeft size={14} /> Ander e-mailadres gebruiken
+                  </Button>
+                  <Button type="submit" disabled={pending}>
+                    {pending ? "Controleren..." : "Bevestigen"}
+                  </Button>
+                </DialogFooter>
+              </form>
+            ) : null}
+
+            {stage === "form" ? (
+              <form onSubmit={onSubmit} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="public-course-title">Naam</Label>
+                  <Input
+                    id="public-course-title"
+                    required
+                    minLength={2}
+                    maxLength={120}
+                    value={title}
+                    onChange={(event) => setTitle(event.target.value)}
+                    disabled={pending}
+                  />
+                </div>
 
               <div className="space-y-2">
                 <Label htmlFor="public-course-location">Locatie</Label>
@@ -388,8 +439,9 @@ export function PublicCourseAddModal({ allSpecs, initialEmail }: Props) {
                   {pending ? "Controleren..." : "Apotheek toevoegen"}
                 </Button>
               </DialogFooter>
-            </form>
-          ) : null}
+              </form>
+            ) : null}
+          </div>
         </DialogContent>
       </Dialog>
 
